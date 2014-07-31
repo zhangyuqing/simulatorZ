@@ -1,0 +1,8 @@
+Package: Z.simulator
+Version: 1.0
+Date: 2014-07-09
+Title: Z.simulator
+Author: Yuqing Zhang
+Maintainer: Yuqing Zhang <zhangyuqing.pkusms@gmail.com>
+Description: R scripts for testing whether shifts of covariates will impact prediction accuracy in cross study validation
+License: GPL-3
