@@ -3,9 +3,9 @@
 \title{generateSurvtime}
 \description{Step.3 Generating survival time --- parametric bootstrap
 update the dmfs.time in simulated ExpressionSets}
-\usage{generateSurvtime(esets, result)}
+\usage{generateSurvtime(simmodels, result)}
 \arguments{
-  \item{esets}{simulated ExpressionSets }
+  \item{simmodels}{simulated ExpressionSets }
   \item{result}{return of getParameter(), a list which consists of Beta, grid, survH and censH
 for each original data set}
 }

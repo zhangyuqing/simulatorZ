@@ -1,7 +1,7 @@
 Package: simulatorZ
 Type: Package
 Title: simulate the result matrix for cross validation and cross study validation.
-Version: 1.0
+Version: 0.99.0
 Date: 2014-08-03
 Author: Yuqing Zhang
 Maintainer: Yuqing Zhang <zhangyuqing.pkusms@gmail.com>

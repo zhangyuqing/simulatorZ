@@ -4,10 +4,12 @@
 \description{Input is a list of ExpressionSets of the original sets, 
 output is another list of ExpressionSets of the simulated sets
 Contains the two steps of non-parametric bootstrap }
-\usage{simData(esets, balance.variables)}
+\usage{simData(esets, balance.variables, n.samples, type)}
 \arguments{
   \item{esets}{original data sets}
   \item{balance.variables}{Later, balance.variables will be a vector of variable names that should be balanced in the simulation.}
+  \item{n.samples}{how many samples should be generated}
+  \item{type}{original or simulated}
 }
 
 \value{returns a list of simulated ExpressionSets, with names indicating its origin.}
