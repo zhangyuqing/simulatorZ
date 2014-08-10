@@ -7,3 +7,5 @@ Author: Yuqing Zhang
 Maintainer: Yuqing Zhang <zhangyuqing.pkusms@gmail.com>
 Description: R scripts for testing whether shifts of covariates will impact prediction accuracy in cross study validation
 License: Artistic-2.0
+Depends: R (>= 3.1), methods, stats, Biobase, survival, Hmisc, pls, gbm, 
+Imports: CoxBoost
