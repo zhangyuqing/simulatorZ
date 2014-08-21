@@ -2,21 +2,34 @@
 \alias{funCV}
 \title{funCV}
 \description{Cross validation function}
-\usage{funCV(eset, fold, p.cutoff, trainFun, testFun, cstatFun)}
+\usage{funCV(eset, fold, y.var, trainFun = masomenos, funCvSubset = cvSubsets)}
 \arguments{
-  \item{eset}{simulated ExpressionSets }
-  \item{fold}{tells the number of folds in cross validation}
-  \item{p.cutoff}{trainFun parameter, in this case passes to masomenos()}
-  \item{trainFun}{training function, in this case masomenos()}
-  \item{testFun}{test function, in this case funTest()}
-  \item{cstatFun}{function for calculating the c stat, in this case calcu_cstat()}
+  \item{eset}{one ExpressionSet to do cross validation with }
+  \item{fold}{the number of folds in cross validation}
+  \item{y.var}{response variable, matrix, data.frame(with 2 columns) or Surv object}
+  \item{trainFun}{training function, which takes gene expression matrix X and response variable y as input, the coefficients as output }
+  \item{funCvSubset}{function to divide one Expression Set into subsets for cross validation}
 }
 
 \value{returns the c statistics of cross validation(CV)}
 
-\author{Yuqing Zhang}
+\author{Levi Waldron, Christoph Bernau, Yuqing Zhang}
 
 
 
 
+\examples{
+library(curatedOvarianData)
+data( E.MTAB.386_eset )
+eset <- E.MTAB.386_eset[1:100, 1:30]
+time <- sample(2000:5000, 30)
+cens <- sample(0:1, 30, replace=TRUE)
+y <- Surv(time, cens)  
+y1 <- cbind(time, cens)
 
+z1.score <- funCV(eset, 3, y)
+z2.score <- funCV(eset, 3, y1, trainFun=plusMinus)
+## any training function will do as long as it takes the gene expression matrix X
+## and response variable y(matrix, data.frame or Surv object) as parameters, and
+## return the coefficients as its value
+}
