@@ -1,4 +1,4 @@
-import(methods, stats, Biobase, survival, Hmisc, pls, gbm, CoxBoost)
+import(Biobase, survival, CoxBoost, gbm, Hmisc)
 
 exportPattern("^[[:alpha:]]+")
 
