@@ -49,4 +49,5 @@ z <- zmatrix(esets, y.vars, 3)
 # generate on simulated ExpressionSets
 simmodels <- simBootstrap(esets, y.vars, 10, 100)
 z <- zmatrix(simmodels$esets.list, simmodels$y.vars.list, 3)
+z
 }

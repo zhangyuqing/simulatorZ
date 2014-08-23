@@ -43,4 +43,5 @@ cens <- sample(0:1, 30, replace=TRUE)
 y <- Surv(time, cens)
 
 beta <- plusMinus(X, y)
+beta
 }

@@ -26,6 +26,7 @@ fold
   subset1 <- E.MTAB.386_eset[, id[[1]]]
   subset2 <- E.MTAB.386_eset[, id[[2]]]
   subset3 <- E.MTAB.386_eset[, id[[3]]]
+  subset1
   
   ## Number of observations in the set does not need to be a multiple of
   ## the fold parameter
@@ -36,4 +37,5 @@ fold
   subsets[[3]] <- E.MTAB.386_eset[, id2[[3]]]
   subsets[[4]] <- E.MTAB.386_eset[, id2[[4]]]
   subsets[[5]] <- E.MTAB.386_eset[, id2[[5]]]
+  subsets
 })

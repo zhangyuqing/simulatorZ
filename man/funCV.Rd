@@ -27,8 +27,8 @@ cens <- sample(0:1, 30, replace=TRUE)
 y <- Surv(time, cens)  
 y1 <- cbind(time, cens)
 
-z1.score <- funCV(eset, 3, y)
-z2.score <- funCV(eset, 3, y1, trainFun=plusMinus)
+funCV(eset, 3, y)
+funCV(eset, 3, y1, trainFun=plusMinus)
 ## any training function will do as long as it takes the gene expression matrix X
 ## and response variable y(matrix, data.frame or Surv object) as parameters, and
 ## return the coefficients as its value

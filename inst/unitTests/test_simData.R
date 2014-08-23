@@ -1,11 +1,11 @@
 test_simData <- function(){
-  require(Biobase)
-  load("prepared/ExpressionSetslist_rm_new.RData")
-  origin_esets <- esets
-  balance.variables=c("age","size","grade","node")
+  library(curatedOvarianData)
+  data(E.MTAB.386_eset) 
+  origin_esets <- E.MTAB.386_eset
+  balance.variables="tumorstage"
   simmodel <- simData(esets=origin_esets, 
                       balance.variables=balance.variables,
-                      n.samples=150, type="simulated")  
+                      n.samples=150, type="one-step")  
   new_esets <- simmodel$esets
   covariates.origin <- lapply(origin_esets, function(eset){
     if(length(balance.variables) == 1){
@@ -31,5 +31,6 @@ test_simData <- function(){
     freq.origin <- table(covariates.originall[id]) / sum(table(covariates.originall[id]))    
   }
   checkEqualsNumeric(as.numeric(freq.sim), as.numeric(freq.origin))
+  #checkEqualsNumeric(simmodel$prob.desired, simmodel$prob.real[[1]])
 }
 

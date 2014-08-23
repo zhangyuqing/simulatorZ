@@ -110,4 +110,5 @@ lambda=NULL, tuningpar="nfeatures",
   y <- Surv(time, cens)
   
   beta <- plusMinus(X, y)
+  beta
 })

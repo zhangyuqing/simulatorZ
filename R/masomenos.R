@@ -32,4 +32,5 @@ masomenos <- structure(function
   y <- Surv(time, cens)
   
   beta <- masomenos(X, y)
+  beta
 })

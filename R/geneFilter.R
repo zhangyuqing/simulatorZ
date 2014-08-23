@@ -41,7 +41,9 @@ geneFilter <- structure(function
   esets <- list(eset1, eset2, eset3) 
   
   result.set <- geneFilter(esets)
+  result.set
   ### as we cannot calculate correlation with one set, this function just 
   ### delivers the same set if esets has length 1
   result.oneset <- geneFilter(list(eset1))
+  result.oneset
 })
