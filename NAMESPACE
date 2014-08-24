@@ -1,4 +1,12 @@
-import()
+import(Biobase, survival)
+importFrom(stats, coefficients, coef, fitted, fitted.values, residuals, time,
+           weights, predict)
+importFrom(graphics, plot)
+importFrom(graphics, boxplot)
 
+importFrom(CoxBoost, CoxBoost)
+importFrom(Hmisc, rcorr.cens)
+importFrom(gbm, basehaz.gbm)
 exportPattern("^[[:alpha:]]+")
+useDynLib(simulatorZ,.registration=TRUE)
 
