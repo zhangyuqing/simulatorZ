@@ -10,7 +10,7 @@ survH=cumulative hazard for survival times distribution
 censH=cumulative hazard for censoring times distribution}
 \usage{getTrueModel(esets, y.vars, parstep)}
 \arguments{
-  \item{esets}{a list of ExpressionSets}
+  \item{esets}{a list of ExpressionSets, matrix or SummarizedExperiment}
   \item{y.vars}{a list of response variables}
   \item{parstep}{CoxBoost parameter}
 }
@@ -29,6 +29,7 @@ lp: true linear predictors }
 
 \examples{
 library(curatedOvarianData)
+library(GenomicRanges)
 data( E.MTAB.386_eset )
 eset1 <- E.MTAB.386_eset[, 1:5]
 eset2 <- E.MTAB.386_eset[, 6:10]
@@ -47,12 +48,18 @@ time3 <- eset3$days_to_death
 cens3 <- c(1, 0, 0, 0, 1)
 y3 <- Surv(time3, cens3)
 y.list<- list(y1, y2, y3) 
-
- 
+   
 res1 <- getTrueModel(esets.list, y.list, 100)
+## Get true model from one set
 res2 <- getTrueModel(list(eset1), y.list[1], 100)
 names(res2)
 res2$lp
 ## note that y.list[1] cannot be replaced by y.list[[1]]
+
+## Support matrices
+X.list <- lapply(esets.list, function(eset){
+  return(exprs(eset))
+})
+res3 <- getTrueModel(X.list, y.list, 100)
 
 }

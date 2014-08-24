@@ -7,7 +7,7 @@ getTrueModel <- structure(function
 ### survH=cumulative hazard for survival times distribution
 ### censH=cumulative hazard for censoring times distribution
 (esets,
- ### a list of ExpressionSets
+ ### a list of ExpressionSets, matrix or SummarizedExperiment
  y.vars,
  ### a list of response variables
  parstep 
@@ -23,14 +23,33 @@ getTrueModel <- structure(function
     time <- as.numeric(as.character(time))
     status <- y.vars[[i]][, 2]
     status <- as.numeric(as.character(status))
-    cbfit <- CoxBoost(time=time, status=status, x=t(exprs(esets[[i]])), 
+    
+    if(class(esets[[1]])=="ExpressionSet"){
+      X <- t(exprs(esets[[i]]))
+    }      
+    else if(class(esets[[1]])=="matrix"){
+      X <- t(esets[[i]])
+    }  
+    else if(class(esets[[1]])=="SummarizedExperiment"){
+      X <- t(assay(esets[[i]]))
+    }
+      
+      
+    cbfit <- CoxBoost(time=time, status=status, x=X, 
                       stepno=parstep, standardize=FALSE)
     
     Beta[[i]] <- coef(cbfit)    
     ### PART 2: get grid, suvH, censH
     ### Survival time ==> dmfs.cens=1, Censoring time ==> dmfs.cens=0
     ### get survH, censH, grid    
-    X <- exprs(esets[[i]])
+    
+    if(class(esets[[1]])=="ExpressionSet")
+      X <- exprs(esets[[i]])
+    else if(class(esets[[1]])=="matrix")
+      X <- esets[[i]]
+    else if(class(esets[[1]])=="SummarizedExperiment")
+      X <- assay(esets[[i]])
+    
     lp[[i]] <- as.numeric(Beta[[i]] %*% X)  ## Calculate linear predictor
     grid[[i]] <- seq(0, max(time), by = 1)
     
@@ -52,6 +71,7 @@ getTrueModel <- structure(function
   ### lp: true linear predictors 
 },ex=function(){
   library(curatedOvarianData)
+  library(GenomicRanges)
   data( E.MTAB.386_eset )
   eset1 <- E.MTAB.386_eset[, 1:5]
   eset2 <- E.MTAB.386_eset[, 6:10]
@@ -70,12 +90,18 @@ getTrueModel <- structure(function
   cens3 <- c(1, 0, 0, 0, 1)
   y3 <- Surv(time3, cens3)
   y.list<- list(y1, y2, y3) 
-  
-   
+     
   res1 <- getTrueModel(esets.list, y.list, 100)
+  ## Get true model from one set
   res2 <- getTrueModel(list(eset1), y.list[1], 100)
   names(res2)
   res2$lp
   ## note that y.list[1] cannot be replaced by y.list[[1]]
+  
+  ## Support matrices
+  X.list <- lapply(esets.list, function(eset){
+    return(exprs(eset))
+  })
+  res3 <- getTrueModel(X.list, y.list, 100)
   
 })

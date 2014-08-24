@@ -1,4 +1,4 @@
-import(Biobase, survival)
+import(Biobase, GenomicRanges, survival)
 importFrom(stats, coefficients, coef, fitted, fitted.values, residuals, time,
            weights, predict)
 importFrom(graphics, plot)

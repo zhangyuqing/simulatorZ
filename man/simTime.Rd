@@ -7,7 +7,7 @@ and cumulative hazard to simulate survival and censoring.}
 \arguments{
   \item{simmodels}{a list in the form of the return value of simData()
 which consists of three lists:
-esets: a list of ExpressionSets
+esets: a list of ExpressionSets, matrics or SummarizedExperiments
 setsID: a list of set labels indicating which original set the simulated one is from
 indices: a list of patient labels to tell which patient in the original set is drawn}
   \item{result}{a list in the form of return of getTrueModel()
@@ -28,6 +28,7 @@ lp: true linear predictors}
 
 \examples{
 library(curatedOvarianData)
+library(GenomicRanges)
 data( E.MTAB.386_eset )
 eset1 <- E.MTAB.386_eset[1:10, 1:5]
 eset2 <- E.MTAB.386_eset[1:10, 6:10]

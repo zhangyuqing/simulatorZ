@@ -1,9 +1,9 @@
 simBootstrap <- structure(function
 ### the driver function to perform three-step bootstrap simulation
 (esets,
- ### a list of ExpressionSets 
+ ### a list of ExpressionSet, matrix or SummarizedExperiment  
  y.vars,
- ### a list of reponse variables
+ ### a list of reponse variables, elements can be class Surv, matrix or data.frame
  n.samples,
  ### number of samples to resample in each set
  parstep,
@@ -42,6 +42,7 @@ simBootstrap <- structure(function
   
 },ex=function(){
   library(curatedOvarianData)
+  library(GenomicRanges)
   data( E.MTAB.386_eset )
   eset1 <- E.MTAB.386_eset[1:10, 1:5]
   eset2 <- E.MTAB.386_eset[1:10, 6:10]
@@ -70,4 +71,27 @@ simBootstrap <- structure(function
   simmodels <- simBootstrap(esets=esets, y.vars=y.vars, 10, 100,
                             balance.variables="tumorstage")
   
+  ## Support matrices
+  X.list <- lapply(esets, function(eset){
+    return(exprs(eset))
+  })
+  simmodels <- simBootstrap(esets=X.list, y.vars=y.vars, 10, 100)
+  
+  ## Support SummarizedExperiment
+  nrows <- 200; ncols <- 10
+  counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
+  rowData <- GRanges(rep(c("chr1", "chr2"), c(50, 150)),
+                     IRanges(floor(runif(200, 1e5, 1e6)), width=100),
+                     strand=sample(c("+", "-"), 200, TRUE))
+  colData <- DataFrame(Treatment=rep(c("ChIP", "Input"), 5),
+                       row.names=LETTERS[1:10])
+  sset <- SummarizedExperiment(assays=SimpleList(counts=counts),
+                               rowData=rowData, colData=colData)
+  
+  s.list <- list(sset[,1:5], sset[,6:10])
+  time <- c(540, 527, 668, 587, 620, 540, 527, 668, 587, 620)
+  cens <- c(1, 0, 0, 1, 0, 1, 0, 0, 1, 0)
+  y.vars <- Surv(time, cens)
+  y.vars <- list(y.vars[1:5,],y.vars[1:5,])
+  simmodels <- simBootstrap(esets=s.list, y.vars=y.vars, 100, 100) 
 })

@@ -4,7 +4,7 @@ simTime <- structure(function
 (simmodels,
  ### a list in the form of the return value of simData()
  ### which consists of three lists:
- ### esets: a list of ExpressionSets
+ ### esets: a list of ExpressionSets, matrics or SummarizedExperiments
  ### setsID: a list of set labels indicating which original set the simulated one is from
  ### indices: a list of patient labels to tell which patient in the original set is drawn
  result
@@ -33,7 +33,15 @@ simTime <- structure(function
     ## the ith resampled set is from names(esets)[i] originally(refer to simData())
     TIME <- CENS <- c()
     newTIME <- newCENS <- c()
-    for(j in 1:length(sampleNames(simmodels$esets[[i]]))) {
+    
+    if(class(simmodels$esets[[1]])=="ExpressionSet")
+      num.sam <- ncol(exprs(simmodels$esets[[i]]))
+    else if(class(simmodels$esets[[1]])=="matrix")
+      num.sam <- ncol(simmodels$esets[[i]])
+    else if(class(simmodels$esets[[1]])=="SummarizedExperiment")
+      num.sam <- ncol(assay(simmodels$esets[[i]]))
+    
+    for(j in 1:num.sam) {
       ## generate the survival time 
       u1 <- runif(1, min = 0, max = 1)
       z1 <- (-log(u1, base=exp(1))) * (exp(-lp[j])) 
@@ -54,6 +62,7 @@ simTime <- structure(function
   ### survival time is saved in phenodata, here the function still returns the ExpressionSets
 },ex=function(){
   library(curatedOvarianData)
+  library(GenomicRanges)
   data( E.MTAB.386_eset )
   eset1 <- E.MTAB.386_eset[1:10, 1:5]
   eset2 <- E.MTAB.386_eset[1:10, 6:10]
