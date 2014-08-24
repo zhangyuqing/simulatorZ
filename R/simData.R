@@ -20,10 +20,12 @@ simData <- structure(function
  ### if isn't NULL, esets parameter should only be of class ExpressionSet
  ){  
   #### Step.1 Drawing sets
-  if(type !="one-step" && type != "two-steps")
+  if(type !="one-step" && type != "two-steps"){
     stop("Wrong type.")
-  else if(type == "one-step")
+  }    
+  else if(type == "one-step"){
     setsID <- 1:length(esets)
+  }    
   else{
     prob.set <- rep((1/length(esets)), times=length(esets))
     setsID <- sample(1:length(esets), prob=prob.set, replace=TRUE)  # labels of data sets
@@ -68,7 +70,7 @@ simData <- structure(function
     else{
       print(paste("covariate: ", balance.variables, sep=""))
       for(i in 1:length(esets)){        
-        sampleind[[i]] <- sample(1:length(sampleNames(esets[[i]])), n.samples, replace=TRUE, prob=probs.list[[setsID[i]]])
+        sampleind[[i]] <- sample(1:length(sampleNames(esets[[setsID[i]]])), n.samples, replace=TRUE, prob=probs.list[[setsID[i]]])
         samplesets[[i]] <- esets[[setsID[i]]][, sampleind[[i]]]
         if(length(y.vars)!=0){
           new.y.vars[[i]] <- y.vars[[setsID[i]]][sampleind[[i]], ]
@@ -80,11 +82,11 @@ simData <- structure(function
     print("covariate: NULL")
     for(i in 1:length(esets)){
       if(class(esets[[1]])=="ExpressionSet")
-        num.sam <- ncol(exprs(esets[[1]]))
+        num.sam <- ncol(exprs(esets[[setsID[i]]]))
       else if(class(esets[[1]])=="matrix")
-        num.sam <- ncol(esets[[1]])
+        num.sam <- ncol(esets[[setsID[i]]])
       else if(class(esets[[1]])=="SummarizedExperiment")
-        num.sam <- ncol(assay(esets[[1]]))
+        num.sam <- ncol(assay(esets[[setsID[i]]]))
       sampleind[[i]] <- sample(1:num.sam, n.samples, replace=TRUE)
       samplesets[[i]] <- esets[[setsID[i]]][, sampleind[[i]]]
       if(length(y.vars)!=0){

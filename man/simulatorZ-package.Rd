@@ -15,7 +15,7 @@ Maintainer: \tab Yuqing Zhang <zhangyuqing.pkusms@gmail.com>\cr
 License: \tab Artistic-2.0\cr
 Depends: \tab R (>= 3.1), Biobase, survival, CoxBoost, gbm, Hmisc\cr
 Imports: \tab GenomicRanges\cr
-Suggests: \tab curatedOvarianData, GenomicRanges\cr
+Suggests: \tab curatedOvarianData\cr
 URL: \tab https://github.com/zhangyuqing/simulatorZ\cr
 BugReports: \tab https://github.com/zhangyuqing/simulatorZ\cr
 biocViews: \tab Survival\cr}
