@@ -1,0 +1,172 @@
+\documentclass{article}
+\usepackage[authoryear,round]{natbib}
+<<style, eval=TRUE, echo=FALSE, results=tex>>=
+BiocStyle::latex(use.unsrturl=FALSE) 
+@
+
+\title{simulatorZ package vignette}
+%\author{Yuqing Zhang}
+\date{Edited: August 2014; Compiled: \today}
+
+\begin{document} 
+\maketitle
+\tableofcontents
+<<options, echo=FALSE>>=  
+options(width=72)
+options("showHeadLines" = 3)
+options("showTailLines" = 3) 
+@
+
+\section{Introduction}
+
+\section{Evaluating the true models of Data sets}
+\section{C Index of true linear predictor}
+<<echo=T>>=
+## Construct the set and response list
+library(curatedOvarianData)
+data(E.MTAB.386_eset)
+esets <- list(E.MTAB.386_eset)
+time <- esets[[1]]$days_to_death
+cens <- esets[[1]]$vital_status
+new_cens <- numeric(length(cens))
+for(i in 1:length(cens)){
+  if(cens[i]=="living") new_cens[i] <- 1
+  else new_cens[i] <- 0
+}
+y.var <- Surv(time, new_cens)
+y.vars.list <- list(y.var)
+
+### perform the model in three steps 
+result <- getTrueModel(esets=esets, y.vars=y.vars.list, parstep=100)
+simmodel <- simData(esets=esets, y.vars=y.vars.list, n.samples=10000)
+new_simmodel <- simTime(simmodels=simmodel, result=result)
+
+### Or by one function simBootstrap
+new_simmodel <- simBootstrap(esets=esets, y.vars=y.vars.list, n.samples=10000,
+                             parstep=100)
+
+new_esets <- new_simmodel$esets
+indices <- new_simmodel$indices
+beta <- result$beta
+lp <- result$lp
+lpboot <- lp[[1]][indices[[1]]]
+
+timetest <- time[indices[[1]]]
+censtest <- new_cens[indices[[1]]]
+yboot <- Surv(timetest, censtest)
+print(paste("c index = ", 
+            rcorr.cens(-lpboot, yboot)[1], 
+            sep=""))
+@
+
+\subsection{distribution of the true linear predictor}
+<<lp,echo=T>>=
+boxplot(lp)
+@ 
+
+\subsection{Compare baseline hazard on bootstrapped data set to baseline hazard on original data using the true lp}
+<<echo=T>>=
+grid <- result$grid[[1]]
+plot(basehaz.gbm(t=yboot[,1], delta=yboot[,2], f.x=lpboot, t.eval = grid, smooth = TRUE, cumulative = T),type='l',col='blue',main='cumulative survival hazard',ylab='Cumulative Hazard',xlab='time',lty=3)
+  legend('topleft',c('estimated on real data using model lp','estimated on simulated data using model lp'),col=c('blue','red'),pch=15,cex=0.6)
+lines(result$survH[[1]],col='red',lty=2)
+@ 
+
+\subsection{distribution of the true coefficients}
+<<echo=T>>=
+plot(beta[[1]],type='p',pch=15)
+@ 
+
+\subsection{Plots on estimated survival functions}
+<<echo=T>>=
+survH.sim <- censH.sim <- list()
+for(i in 1:length(new_esets)){
+    id <- new_simmodel$setsID[i]
+    lp <- t(exprs(new_esets[[i]]))  %*% as.matrix(beta[[id]])
+    time.sim <- as.numeric(as.character(new_esets[[i]]$dmfs.time))
+    status.sim <-as.numeric(as.character(new_esets[[i]]$dmfs.cens))     
+    grid <- seq(0, max(time.sim[time.sim!=1e+08]), by = 1)
+    survH.sim[[i]] <- basehaz.gbm(t=time.sim, delta=status.sim, f.x=lp, 
+                                  t.eval=grid, smooth=TRUE, cumulative=TRUE)
+    inverse_status.sim <- (-1) * status.sim + 1
+    censH.sim[[i]] <- basehaz.gbm(t=time.sim, delta=inverse_status.sim, f.x=rep(0, length(time.sim)), 
+                                  t.eval=grid, smooth=TRUE, cumulative=TRUE)        
+    plotind <- sample(1:largeN, 500, replace=FALSE)
+    for(j in plotind){
+      color <- sample(1:8, 1)
+      plot(exp(-survH.sim[[i]]*exp(lp[j])), type="l", xlim=c(0, 5000), ylim=c(0, 1), xlab="time", ylab="probability of survival", 
+           main="estimated survival functions", col=color)
+      par(new=TRUE)
+    }    
+  }
+@
+
+
+\section{Independent within study validation (Superpc)}
+\subsection{create training set and large validation set}
+<<echo=TRUE>>=
+tr.size <- 450
+simmodel.tr <- simData(esets, tr.size)
+tr.set <- simmodel.tr$esets[[1]]
+X.tr <- t(exprs(tr.set))
+time.tr <- time[simmodel.tr$indices[[1]]]
+status.tr <- new_cens[simmodel.tr$indices[[1]]]
+y.tr <- Surv(time.tr, status.tr)
+rm(time.tr, status.tr, simmodel.tr)
+
+# validation set
+val.size <- 1000
+simmodel.val <- simData(esets, val.size)
+val.set <- simmodel.val$esets[[1]]
+X.val <- t(exprs(val.set))
+time.val <- time[simmodel.val$indices[[1]]]
+status.val <- new_cens[simmodel.val$indices[[1]]]
+y.val <- Surv(time.val, status.val)
+rm(time.val, status.val)
+
+#check C-Index for true lp
+val.par <- getTrueModel(esets, y.vars.list, 100)
+lpboot <- val.par$lp[[1]][simmodel.val$indices[[1]]]
+c.ind <- rcorr.cens(-lpboot, y.val)[1]
+print(c.ind)
+@
+
+\subsection{Fit Superpc}
+<<echo=TRUE>>=
+library(superpc)
+###fit on training set (with parameter tuning)
+tr.data<- data<-list(x=t(X.tr),y=y.tr[,1], censoring.status=y.tr[,2], featurenames=colnames(X.tr))
+#fit
+fit.tr<-superpc.train(data=tr.data,type='survival')
+#tuning
+cv.tr<-superpc.cv(fit.tr,data=tr.data)
+#get best pars
+n.comp<-which.max(apply(cv.tr$scor, 1, max, na.rm = TRUE))
+thresh<-cv.tr$thresholds[which.max(cv.tr$scor[n.comp, ])]
+#fit using optimal parameters
+#compute lp using the optimal parameters
+lp.tr<- superpc.predict(fit.tr, tr.data, tr.data, threshold=thresh, n.components=n.comp)$v.pred.1df
+#plot distribution of lp
+boxplot(lp.tr)
+@ 
+
+\subsection{validation on large validation set}
+<<echo=F>>=
+#predict lp for val. data
+data.val<- data<-list(x=t(X.val),y=y.val[,1], censoring.status=y.val[,2], featurenames=colnames(X.tr))
+lp.val<-superpc.predict(fit.tr, tr.data, data.val, threshold=thresh, n.components=n.comp)$v.pred.1df
+
+#compute C-Index
+print('C-Index')
+(c.ind<-rcorr.cens(-lp.val,y.val)[1])
+#compute correlation to true lp
+print('correlation to true lp')
+(corlps<-cor(lp.val,lpboot,method='pearson'))
+@ 
+
+\section{Session Info}
+<<echo=T>>=
+sessionInfo()
+@ 
+
+\end{document}
