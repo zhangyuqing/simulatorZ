@@ -20,7 +20,10 @@ options("showTailLines" = 3)
 \section{Introduction}
 
 \section{Evaluating the true models of Data sets}
+The parametric-bootstrap step involves a generative model that combines the truncated inversion method in Bender et al. (2005) , the Nelson-Aalen estimator for cumulative hazard functions, and  CoxBoost method (Binder and Schumacher, 2008) to simulate survival times. These generative models are referred to as the "true models" of the data sets. True models can give a brief description of the studies we will evaluate from multiple aspects and the following are some examples.
+
 \section{C Index of true linear predictor}
+True linear predictors are calculated by multiplying the gene expression matrix with coefficients we used to simulate the survival times. C indices we get with true linear predictors should set the upper bound of the validation performance that any algorithms can reach.
 <<echo=T>>=
 ## Construct the set and response list
 library(curatedOvarianData)
@@ -59,22 +62,18 @@ print(paste("c index = ",
             sep=""))
 @
 
-\subsection{distribution of the true linear predictor}
-<<lp,echo=T>>=
-boxplot(lp)
-@ 
-
 \subsection{Compare baseline hazard on bootstrapped data set to baseline hazard on original data using the true lp}
+
 <<echo=T>>=
 grid <- result$grid[[1]]
 plot(basehaz.gbm(t=yboot[,1], delta=yboot[,2], f.x=lpboot, t.eval = grid, smooth = TRUE, cumulative = T),type='l',col='blue',main='cumulative survival hazard',ylab='Cumulative Hazard',xlab='time',lty=3)
   legend('topleft',c('estimated on real data using model lp','estimated on simulated data using model lp'),col=c('blue','red'),pch=15,cex=0.6)
 lines(result$survH[[1]],col='red',lty=2)
-@ 
+@  
 
-\subsection{distribution of the true coefficients}
-<<echo=T>>=
-plot(beta[[1]],type='p',pch=15)
+\subsection{distribution of the true linear predictor}
+<<lp,echo=T>>=
+boxplot(lp)
 @ 
 
 \subsection{Plots on estimated survival functions}
@@ -103,6 +102,8 @@ for(i in 1:length(new_esets)){
 
 
 \section{Independent within study validation (Superpc)}
+Other than true models, we can introduce in various algorithms and conduct validation with them. The following example shows how to use SuperPC (Blair and
+Tibshirani, 2004) algorithm to train and validate on one ExpressionSet
 \subsection{create training set and large validation set}
 <<echo=TRUE>>=
 tr.size <- 450
