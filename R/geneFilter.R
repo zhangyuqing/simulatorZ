@@ -6,36 +6,40 @@ geneFilter <- structure(function
  cor.cutoff=0.5 
  ### the cutoff threshold for filtering genes
 ){
-  geneid <- c()
-  if(class(esets[[1]])=="ExpressionSet"){
-    X.list <- lapply(esets, function(eset){
-      return(t(exprs(eset)))
-    })
-  }    
-  else if(class(esets[[1]])=="matrix"){
-    X.list <- lapply(esets, function(eset){
-      return(t(eset))
-    })
-  }
-  else if(class(esets[[1]])=="SummarizedExperiment"){
-    X.list <- lapply(esets, function(eset){
-      return(t(assay(eset)))
-    })
-  }
-
   index <- 1
   qua.id <- list()
+  geneid <- c()
+  
   for(i in 1:length(esets)){
     for(j in i:length(esets)){
-      cor.mi <- cor(X.list[[i]])
-      cor.mj <- cor(X.list[[j]])
-      int.score <- diag(cor(cor.mi, cor.mj))
-      qua.id[[index]] <- as.numeric(which(int.score > cor.cutoff))
-      index <- index + 1
+      if(i!=j){
+        print(paste(i, j, sep="--"))
+        if(class(esets[[1]])=="ExpressionSet"){
+          Xi <- t(exprs(esets[[i]]))
+          Xj <- t(exprs(esets[[j]]))
+        }    
+        else if(class(esets[[1]])=="matrix"){
+          Xi <- t(esets[[i]])
+          Xj <- t(esets[[j]])
+        }
+        else if(class(esets[[1]])=="SummarizedExperiment"){
+          Xi <- t(assay(esets[[i]]))
+          Xj <- t(assay(esets[[j]]))
+        }   
+        m1 <- cor(Xi)
+        m2 <- cor(Xj)
+        int.score <- c()
+        for(k in 1:ncol(m1)){
+          int.score[k] <- cor(m1[, k], m2[, k])
+        }
+        qua.id[[index]] <- as.numeric(which(int.score > cor.cutoff))
+        index <- index + 1
+        geneid <- 1:ncol(Xi)
+        rm(Xi, Xj, m1, m2)
+      }      
     }
   }
-  
-  geneid <- 1:ncol(X.list[[1]])
+    
   for(k in 1:length(qua.id)){
     geneid <- intersect(geneid, qua.id[[k]])
   }
