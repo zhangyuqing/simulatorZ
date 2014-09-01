@@ -24,23 +24,22 @@ geneFilter <- structure(function
   }
 
   index <- 1
-  for(k in 1:ncol(X.list[[1]])){
-    marker <- TRUE
-    for(i in 1:length(esets)){
-      for(j in i:length(esets)){
-        cor.mi <- cor(X.list[[i]])
-        cor.mj <- cor(X.list[[j]])
-        if(cor(cor.mi[k, ], cor.mj[k, ]) < cor.cutoff) marker <- FALSE
-        rm(cor.mi, cor.mj)
-      }
-    }
-    if(marker) {
-      geneid[index] <- k
+  qua.id <- list()
+  for(i in 1:length(esets)){
+    for(j in i:length(esets)){
+      cor.mi <- cor(X.list[[i]])
+      cor.mj <- cor(X.list[[j]])
+      int.score <- diag(cor(cor.mi, cor.mj))
+      qua.id[[index]] <- as.numeric(which(int.score > cor.cutoff))
       index <- index + 1
     }
   }
   
-  
+  geneid <- 1:ncol(X.list[[1]])
+  for(k in 1:length(qua.id)){
+    geneid <- intersect(geneid, qua.id[[k]])
+  }
+    
   new.esets <- lapply(esets, function(eset){
     return(eset[geneid,])
   })
