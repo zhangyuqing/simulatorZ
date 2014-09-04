@@ -1,16 +1,48 @@
-\documentclass{article}
+\documentclass[a4paper, 10pt]{article}
 \usepackage[authoryear,round]{natbib}
 <<style, eval=TRUE, echo=FALSE, results=tex>>=
 BiocStyle::latex(use.unsrturl=FALSE) 
 @
+\usepackage[latin1]{inputenc}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{latexsym}
+\usepackage{verbatim}
+\usepackage{epsfig}
+\usepackage{fleqn}
+\usepackage{color}
+\usepackage[colorlinks=true, linkcolor=blue, anchorcolor=blue,citecolor=blue, filecolor=blue, menucolor=blue, pagecolor=blue, urlcolor=blue]{hyperref}
+\usepackage{mathrsfs}
+\usepackage{eufrak}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{amsbsy}
+\usepackage{bm}
+\usepackage[nonamebreak,square]{natbib}
 
-\title{simulatorZ package vignette}
+\parindent0pt
+\parskip1ex
+\oddsidemargin-0.5cm
+\topmargin-.2cm
+\textheight23cm
+\textwidth13cm
+\headsep0.5cm
+\pagestyle{plain}
+
+\def\su{\sum_{i=1}^n}
+\def\etall{\mbox{{\it et al., }}}
+\def\etal{\mbox{{\it et al. }}}
+
+\title{\Huge{{\bf simulatorZ package vignette}}}
 %\author{Yuqing Zhang}
+
 \date{Edited: August 2014; Compiled: \today}
 
-\begin{document} 
 \maketitle
 \tableofcontents
+\begin{document}
 <<options, echo=FALSE>>=  
 options(width=72)
 options("showHeadLines" = 3)
@@ -26,6 +58,7 @@ The parametric-bootstrap step involves a generative model that combines the trun
 True linear predictors are calculated by multiplying the gene expression matrix with coefficients we used to simulate the survival times. C indices we get with true linear predictors should set the upper bound of the validation performance that any algorithms can reach.
 <<echo=T>>=
 ## Construct the set and response list
+library(simulatorZ)
 library(curatedOvarianData)
 data(E.MTAB.386_eset)
 esets <- list(E.MTAB.386_eset)
@@ -41,11 +74,11 @@ y.vars.list <- list(y.var)
 
 ### perform the model in three steps 
 result <- getTrueModel(esets=esets, y.vars=y.vars.list, parstep=100)
-simmodel <- simData(esets=esets, y.vars=y.vars.list, n.samples=10000)
+simmodel <- simData(esets=esets, y.vars=y.vars.list, n.samples=4000)
 new_simmodel <- simTime(simmodels=simmodel, result=result)
 
 ### Or by one function simBootstrap
-new_simmodel <- simBootstrap(esets=esets, y.vars=y.vars.list, n.samples=10000,
+new_simmodel <- simBootstrap(esets=esets, y.vars=y.vars.list, n.samples=4000,
                              parstep=100)
 
 new_esets <- new_simmodel$esets
@@ -82,15 +115,15 @@ survH.sim <- censH.sim <- list()
 for(i in 1:length(new_esets)){
     id <- new_simmodel$setsID[i]
     lp <- t(exprs(new_esets[[i]]))  %*% as.matrix(beta[[id]])
-    time.sim <- as.numeric(as.character(new_esets[[i]]$dmfs.time))
-    status.sim <-as.numeric(as.character(new_esets[[i]]$dmfs.cens))     
+    time.sim <- new_simmodel$y.vars.list[[i]][, 1]
+    status.sim <- new_simmodel$y.vars.list[[i]][, 2]    
     grid <- seq(0, max(time.sim[time.sim!=1e+08]), by = 1)
     survH.sim[[i]] <- basehaz.gbm(t=time.sim, delta=status.sim, f.x=lp, 
                                   t.eval=grid, smooth=TRUE, cumulative=TRUE)
     inverse_status.sim <- (-1) * status.sim + 1
     censH.sim[[i]] <- basehaz.gbm(t=time.sim, delta=inverse_status.sim, f.x=rep(0, length(time.sim)), 
                                   t.eval=grid, smooth=TRUE, cumulative=TRUE)        
-    plotind <- sample(1:largeN, 500, replace=FALSE)
+    plotind <- sample(1:4000, 500, replace=FALSE)
     for(j in plotind){
       color <- sample(1:8, 1)
       plot(exp(-survH.sim[[i]]*exp(lp[j])), type="l", xlim=c(0, 5000), ylim=c(0, 1), xlab="time", ylab="probability of survival", 
@@ -167,7 +200,7 @@ print('correlation to true lp')
 
 \section{Session Info}
 <<echo=T>>=
-sessionInfo()
+toLatex(sessionInfo())
 @ 
 
 \end{document}
