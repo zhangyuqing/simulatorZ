@@ -38,8 +38,11 @@ BiocStyle::latex()
 \def\etall{\mbox{{\it et al., }}}
 \def\etal{\mbox{{\it et al. }}}
 
-\bioctitle[Short SimulatorZ]{SimulatorZ package vignette}
+
+\bioctitle{SimulatorZ package vignette}
 \author{Yuqing Zhang\footnote{zhangyuqing.pkusms@gmail.com}, Christoph Bernau\footnote{Christoph.Bernau@lrz.de},Levi Waldron\footnote{levi.waldron@hunter.cuny.edu}}
+
+
 \begin{document}
 \date{Edited: August 2014; Compiled: \today}
 
@@ -58,7 +61,7 @@ The parametric-bootstrap step involves a generative model that combines the trun
 
 \section{C Index of true linear predictor}
 True linear predictors are calculated by multiplying the gene expression matrix with coefficients we used to simulate the survival times. C indices we get with true linear predictors should set the upper bound of the validation performance that any algorithms can reach.
-<<echo=T>>=
+<<echo=T,results=hide>>=
 ## Construct the set and response list
 library(simulatorZ)
 library(curatedOvarianData)
@@ -87,7 +90,8 @@ indices <- new_simmodel$indices
 beta <- result$beta
 lp <- result$lp
 lpboot <- lp[[1]][indices[[1]]]
-
+@
+<<echo=T>>=
 timetest <- time[indices[[1]]]
 censtest <- new_cens[indices[[1]]]
 yboot <- Surv(timetest, censtest)
@@ -109,9 +113,9 @@ plot(basehaz.gbm(t=yboot[,1], delta=yboot[,2],
          col=c('blue','red'),pch=15,cex=0.6)
 lines(result$survH[[1]],col='red',lty=2)
 @  
-\incfig{simulatorZ-vignette-cumhaz}{0.8\textwidth}{Cumulative hazard of original and simulated data sets}
-{two lines are almost the same.}
-as shown in Figure~\ref{simulatorZ-vignette-cumhaz}.
+\incfig{simulatorZ-vignette-cumhaz}{0.8\textwidth}{Cumulative hazard of original and simulated data sets.}
+{Two lines are almost the same.}
+
 
 \subsection{distribution of the true linear predictor}
 <<lp,echo=T,fig=TRUE>>=
@@ -146,15 +150,15 @@ for(i in 1:length(new_esets)){
     }    
   }
 @
-\incfig{simulatorZ-vignette-survfun}{0.8\textwidth}{Survival curves of the simulated observations}
+\incfig{simulatorZ-vignette-survfun}{0.8\textwidth}{Survival curves of the simulated observations.}
 {Through examining the survival curves of simulated observations, we can see that there is enough variance amongst the simulated data set, thus ensuring the similarity between simulated and real data sets. This is important for further validation.}
-as shown in Figure~\ref{simulatorZ-vignette-survfun}.
+
 
 \section{Independent within study validation (Superpc)}
-Other than true models, we can introduce in various algorithms and conduct validation with them. The following example shows how to use SuperPC (Blair and
+Other than inspecting true models of the simulated data sets, we can introduce in various algorithms and conduct validation with them. The following example shows how to use SuperPC (Blair and
 Tibshirani, 2004) algorithm to train and validate on one ExpressionSet
 \subsection{create training set and large validation set}
-<<echo=TRUE>>=
+<<echo=TRUE,results=hide>>=
 tr.size <- 450
 simmodel.tr <- simData(esets, tr.size)
 tr.set <- simmodel.tr$esets[[1]]
@@ -173,7 +177,8 @@ time.val <- time[simmodel.val$indices[[1]]]
 status.val <- new_cens[simmodel.val$indices[[1]]]
 y.val <- Surv(time.val, status.val)
 rm(time.val, status.val)
-
+@
+<<echo=TRUE>>=
 #check C-Index for true lp
 val.par <- getTrueModel(esets, y.vars.list, 100)
 lpboot <- val.par$lp[[1]][simmodel.val$indices[[1]]]
@@ -182,7 +187,7 @@ print(c.ind)
 @
 
 \subsection{Fit Superpc}
-<<echo=TRUE,fig=TRUE>>=
+<<echo=TRUE,fig=TRUE,results=hide>>=
 library(superpc)
 ###fit on training set (with parameter tuning)
 tr.data<- data<-list(x=t(X.tr),y=y.tr[,1], censoring.status=y.tr[,2], 
@@ -217,6 +222,72 @@ print('C-Index')
 print('correlation to true lp')
 (corlps<-cor(lp.val,lpboot,method='pearson'))
 @ 
+
+\section{Cross Study Validation}
+With enough data sets, we can perform cross validation on one set as illustrated in the last section, or do cross study validation with multiple sets. For specific training and validation set, we can simply replace the validation set in the last section with the testing set. If we hope to perform cross study validation between each pair of data sets, the simulatorZ has a function zmatrix() to generate a matrix of C-Index. For the diagnostic elements, it performs within study cross validation. 
+\subsection{Generate a matrix of validation statistics with original data sets}
+
+<<echo=TRUE,results=hide>>=
+data( E.MTAB.386_eset )
+eset1 <- E.MTAB.386_eset[1:100, 1:30]
+eset2 <- E.MTAB.386_eset[1:100, 31:60]
+eset3 <- E.MTAB.386_eset[1:100, 61:90]  
+esets <- list(eset1, eset2, eset3) 
+  
+time1 <- eset1$days_to_death
+cens1 <- sample(0:1, 30, replace=TRUE)
+y1 <- Surv(time1, cens1)
+time2 <- eset2$days_to_death
+cens2 <- sample(0:1, 30, replace=TRUE)
+y2 <- Surv(time2, cens2)
+time3 <- eset3$days_to_death
+cens3 <- sample(0:1, 30, replace=TRUE)
+y3 <- Surv(time3, cens3)
+y.vars <- list(y1, y2, y3)
+
+z <- zmatrix(esets=esets,y.vars=y.vars,
+             fold=3,trainingFun=plusMinus)
+@
+<<echo=TRUE>>=
+print(z)
+@
+
+\subsection{Generate a matrix of validation statistics with simulated data sets}
+Now, we can also combine the simulation with generating the matrix of C statistics like below.
+<<echo=TRUE,results=hide>>=
+Z.list <- list()
+CV <- CSV <- c()
+for(b in 1:30){
+  print(paste("iteration: ", b, sep=""))
+  sim2.esets <- simBootstrap(esets=esets, n.samples=150, y.vars=y.vars,
+                             parstep=100, type="two-steps")
+  Z.list[[b]] <- zmatrix(esets=sim2.esets$esets.list, 
+                         y.vars=sim2.esets$y.vars.list, fold=4,
+                         trainingFun=plusMinus)
+  sum.cv <- 0
+  for(i in 1:length(esets)){
+    sum.cv <- sum.cv + Z.list[[b]][i, i]
+  }
+  CV[b] <- sum.cv / length(esets)
+  CSV[b] <- (sum(Z.list[[b]]) - sum.cv) / (length(esets)*(length(esets)-1))
+}
+@
+
+<<box,echo=TRUE,fig=TRUE,include=FALSE>>=
+average.Z <- Z.list[[1]]
+for(i in 2:length(Z.list)){
+  average.Z <- average.Z + Z.list[[i]]
+}
+average.Z <- average.Z / 30
+print(average.Z)
+
+resultlist <- list(CSV=CSV, CV=CV)
+boxplot(resultlist, col=c("white", "grey"), ylab="C-Index", 
+        boxwex = 0.25, xlim=c(0.5, 2.5))
+@
+\incfig{simulatorZ-vignette-box}{0.8\textwidth}{Boxplots of C-Index performance with cross validation and cross study validation}
+
+
 
 \section{Session Info}
 <<echo=T>>=
