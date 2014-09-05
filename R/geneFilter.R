@@ -39,7 +39,24 @@ geneFilter <- structure(function
       }      
     }
   }
-    
+  
+  if(length(esets)==1){
+    if(class(esets[[1]])=="ExpressionSet"){
+      X <- t(exprs(esets[[1]]))
+      X <- t(exprs(esets[[1]]))
+    }    
+    else if(class(esets[[1]])=="matrix"){
+      X <- t(esets[[1]])
+      X <- t(esets[[1]])
+    }
+    else if(class(esets[[1]])=="SummarizedExperiment"){
+      X <- t(assay(esets[[1]]))
+      X <- t(assay(esets[[1]]))
+    }
+    geneid <- qua.id[[1]] <- 1:ncol(X)
+    rm(X)
+  }
+  
   for(k in 1:length(qua.id)){
     geneid <- intersect(geneid, qua.id[[k]])
   }

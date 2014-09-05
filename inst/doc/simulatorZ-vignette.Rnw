@@ -39,7 +39,7 @@ BiocStyle::latex()
 \def\etal{\mbox{{\it et al. }}}
 
 \bioctitle[Short SimulatorZ]{SimulatorZ package vignette}
-\author{Yuqing Zhang\footnote{zhangyuqing.pkusms@gmail.com}, Christoph Bernau\footnote{Christoph.Bernau@lrz.de},Levi Waldron\footnote{levi.waldron@hunter.cuny.edu}}
+\author{Iman Author\footnote{iman@author.org}}
 \begin{document}
 \date{Edited: August 2014; Compiled: \today}
 
@@ -97,7 +97,7 @@ print(paste("c index = ",
 @
 
 \subsection{Compare baseline hazard on bootstrapped data set to baseline hazard on original data using the true lp}
-<<cumhaz,echo=T,fig=T,include=FALSE>>=
+<<cumhaz,echo=T,fig=TRUE>>=
 grid <- result$grid[[1]]
 plot(basehaz.gbm(t=yboot[,1], delta=yboot[,2],
                  f.x=lpboot, t.eval = grid, 
@@ -119,7 +119,7 @@ boxplot(lp)
 @ 
 
 \subsection{Plots on estimated survival functions}
-<<survfun,echo=T,fig=T,include=FALSE>>=
+<<echo=T,fig=TRUE>>=
 survH.sim <- censH.sim <- list()
 for(i in 1:length(new_esets)){
     id <- new_simmodel$setsID[i]
@@ -138,17 +138,12 @@ for(i in 1:length(new_esets)){
     for(j in plotind){
       color <- sample(1:8, 1)
       plot(exp(-survH.sim[[i]]*exp(lp[j])), type="l", 
-           xlim=c(0, 3000), ylim=c(0, 1), xlab="time", 
-           ylab="probability of survival", 
-           main="estimated survival functions", 
-           col=color)
+           xlim=c(0, 3000), ylim=c(0, 1), xlab="time", ylab="probability of survival", main="estimated survival functions", col=color)
       par(new=TRUE)
     }    
   }
 @
-\incfig{simulatorZ-vignette-survfun}{0.8\textwidth}{Survival curves of the simulated observations}
-{Through examining the survival curves of simulated observations, we can see that there is enough variance amongst the simulated data set, thus ensuring the similarity between simulated and real data sets. This is important for further validation.}
-as shown in Figure~\ref{simulatorZ-vignette-survfun}.
+
 
 \section{Independent within study validation (Superpc)}
 Other than true models, we can introduce in various algorithms and conduct validation with them. The following example shows how to use SuperPC (Blair and
