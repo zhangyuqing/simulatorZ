@@ -7,7 +7,7 @@ and cumulative hazard to simulate survival and censoring.}
 \arguments{
   \item{simmodels}{a list in the form of the return value of simData()
 which consists of three lists:
-esets: a list of ExpressionSets, matrics or SummarizedExperiments
+obj: a list of ExpressionSets, matrics or SummarizedExperiments
 setsID: a list of set labels indicating which original set the simulated one is from
 indices: a list of patient labels to tell which patient in the original set is drawn}
   \item{result}{a list in the form of return of getTrueModel()
@@ -29,40 +29,45 @@ lp: true linear predictors}
 \examples{
 library(curatedOvarianData)
 library(GenomicRanges)
-data( E.MTAB.386_eset )
-eset1 <- E.MTAB.386_eset[1:10, 1:5]
-eset2 <- E.MTAB.386_eset[1:10, 6:10]
-eset3 <- E.MTAB.386_eset[1:10, 11:15]  
-esets <- list(eset1, eset2, eset3) 
+source(system.file("extdata", "patientselection.config",
+                   package="curatedOvarianData"))
+source(system.file("extdata", "createEsetList.R", package="curatedOvarianData"))
+esets.list <- lapply(esets, function(eset){
+  return(eset[1:500, 1:20])
+})
+esets.list <- esets.list[1:5]
+## simulate on multiple ExpressionSets
+set.seed(8) 
 
-time1 <- eset1$days_to_death
-cens1 <- c(0, 0, 0, 1, 1)
-y1 <- Surv(time1, cens1)
-time2 <- eset2$days_to_death
-cens2 <- c(1, 1, 0, 0, 0)
-y2 <- Surv(time2, cens2)
-time3 <- eset3$days_to_death
-cens3 <- c(1, 0, 0, 0, 1)
-y3 <- Surv(time3, cens3)
-y.vars <- list(y1, y2, y3)
+y.list <- lapply(esets.list, function(eset){
+  time <- eset$days_to_death
+  cens.chr <- eset$vital_status
+  cens <- c()
+  for(i in 1:length(cens.chr)){
+    if(cens.chr[i] == "living") cens[i] <- 1
+    else cens[i] <- 0
+  }
+  y <- Surv(time, cens)
+  return(y)
+})
 
 # To perform both parametric and non-parametric bootstrap, you can call simBootstrap()
 # or, you can divide the steps into:
-res <- getTrueModel(esets, y.vars, 100)
-simmodels <- simData(esets=esets, y.vars=y.vars, n.samples=10)
+res <- getTrueModel(esets.list, y.list, 100)
+simmodels <- simData(obj=esets.list, y.vars=y.list, n.samples=10)
 
 # Then, use this function
 simmodels <- simTime(simmodels=simmodels, result=res) 
 
 # it also supports performing only the parametrc bootstrap step on a list of expressionsets
 # but you need to construct the parameter by scratch
-res <- getTrueModel(esets, y.vars, 100)
-setsID <- 1:length(esets)
+res <- getTrueModel(esets.list, y.list, 100)
+setsID <- 1:length(esets.list)
 indices <- list()
 for(i in setsID){
-  indices[[i]] <- 1:length(sampleNames(esets[[i]])) 
+  indices[[i]] <- 1:length(sampleNames(esets.list[[i]])) 
 }
-simmodels <- list(esets=esets, y.vars=y.vars, indices=indices, setsID=setsID)
+simmodels <- list(obj=esets.list, y.vars=y.list, indices=indices, setsID=setsID)
 
 new.simmodels <- simTime(simmodels=simmodels, result=res)  
 }

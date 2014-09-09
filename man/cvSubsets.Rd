@@ -2,9 +2,9 @@
 \alias{cvSubsets}
 \title{cvSubsets}
 \description{To generate a list of subsets(indices of observations) from one set}
-\usage{cvSubsets(eset, fold)}
+\usage{cvSubsets(obj, fold)}
 \arguments{
-  \item{eset}{a ExpressionSet, matrix or SummarizedExperiment object. If it is a matrix,
+  \item{obj}{a ExpressionSet, matrix or SummarizedExperiment object. If it is a matrix,
 columns represent samples}
   \item{fold}{the number of folds in cross validation. 
 Number of observations in the set does not need to be a multiple of fold}
@@ -21,6 +21,8 @@ Number of observations in the set does not need to be a multiple of fold}
 library(curatedOvarianData)
 library(GenomicRanges)
 data(E.MTAB.386_eset)
+
+set.seed(8)
 id <- cvSubsets(E.MTAB.386_eset, 3)
 
 subset1 <- E.MTAB.386_eset[, id[[1]]]
@@ -52,5 +54,4 @@ colData <- DataFrame(Treatment=rep(c("ChIP", "Input"), 3),
 sset <- SummarizedExperiment(assays=SimpleList(counts=counts),
                              rowData=rowData, colData=colData)
 id4 <- cvSubsets(sset, 5)
-
 }

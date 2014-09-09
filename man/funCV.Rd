@@ -2,9 +2,9 @@
 \alias{funCV}
 \title{funCV}
 \description{Cross validation function}
-\usage{funCV(eset, fold, y.var, trainFun = masomenos, funCvSubset = cvSubsets)}
+\usage{funCV(obj, fold, y.var, trainFun = masomenos, funCvSubset = cvSubsets)}
 \arguments{
-  \item{eset}{a ExpressionSet, matrix or SummarizedExperiment object. If it is a matrix,
+  \item{obj}{a ExpressionSet, matrix or SummarizedExperiment object. If it is a matrix,
 columns represent samples }
   \item{fold}{the number of folds in cross validation}
   \item{y.var}{response variable, matrix, data.frame(with 2 columns) or Surv object}
@@ -22,10 +22,16 @@ columns represent samples }
 \examples{
 library(curatedOvarianData)
 library(GenomicRanges)
+set.seed(8)
 data( E.MTAB.386_eset )
 eset <- E.MTAB.386_eset[1:100, 1:30]
-time <- sample(2000:5000, 30)
-cens <- sample(0:1, 30, replace=TRUE)
+time <- eset$days_to_death
+cens.chr <- eset$vital_status
+cens <- c()
+for(i in 1:length(cens.chr)){
+  if(cens.chr=="living") cens[i] <- 1
+  else cens[i] <- 0
+}
 y <- Surv(time, cens)  
 y1 <- cbind(time, cens)
 

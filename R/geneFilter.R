@@ -1,30 +1,32 @@
 geneFilter <- structure(function
 ### the function to filter genes by intergrative correlation
-(esets,
+(obj,
  ### a list of ExpressionSet, matrix or SummarizedExperiment objects. If its elements are matrices,
  ### columns represent samples, rows represent genes
  cor.cutoff=0.5 
- ### the cutoff threshold for filtering genes
+ ### the cutoff threshold for filtering genes. Only when the integrative correlation
+ ### between every pair of sets is larger than the cutoff value, will the gene 
+ ### be selected.
 ){
   index <- 1
   qua.id <- list()
   geneid <- c()
   
-  for(i in 1:length(esets)){
-    for(j in i:length(esets)){
+  for(i in 1:length(obj)){
+    for(j in i:length(obj)){
       if(i!=j){
         print(paste(i, j, sep="--"))
-        if(class(esets[[1]])=="ExpressionSet"){
-          Xi <- t(exprs(esets[[i]]))
-          Xj <- t(exprs(esets[[j]]))
+        if(class(obj[[1]])=="ExpressionSet"){
+          Xi <- t(exprs(obj[[i]]))
+          Xj <- t(exprs(obj[[j]]))
         }    
-        else if(class(esets[[1]])=="matrix"){
-          Xi <- t(esets[[i]])
-          Xj <- t(esets[[j]])
+        else if(class(obj[[1]])=="matrix"){
+          Xi <- t(obj[[i]])
+          Xj <- t(obj[[j]])
         }
-        else if(class(esets[[1]])=="SummarizedExperiment"){
-          Xi <- t(assay(esets[[i]]))
-          Xj <- t(assay(esets[[j]]))
+        else if(class(obj[[1]])=="SummarizedExperiment"){
+          Xi <- t(assay(obj[[i]]))
+          Xj <- t(assay(obj[[j]]))
         }   
         m1 <- cor(Xi)
         m2 <- cor(Xj)
@@ -40,18 +42,18 @@ geneFilter <- structure(function
     }
   }
   
-  if(length(esets)==1){
-    if(class(esets[[1]])=="ExpressionSet"){
-      X <- t(exprs(esets[[1]]))
-      X <- t(exprs(esets[[1]]))
+  if(length(obj)==1){
+    if(class(obj[[1]])=="ExpressionSet"){
+      X <- t(exprs(obj[[1]]))
+      X <- t(exprs(obj[[1]]))
     }    
-    else if(class(esets[[1]])=="matrix"){
-      X <- t(esets[[1]])
-      X <- t(esets[[1]])
+    else if(class(obj[[1]])=="matrix"){
+      X <- t(obj[[1]])
+      X <- t(obj[[1]])
     }
-    else if(class(esets[[1]])=="SummarizedExperiment"){
-      X <- t(assay(esets[[1]]))
-      X <- t(assay(esets[[1]]))
+    else if(class(obj[[1]])=="SummarizedExperiment"){
+      X <- t(assay(obj[[1]]))
+      X <- t(assay(obj[[1]]))
     }
     geneid <- qua.id[[1]] <- 1:ncol(X)
     rm(X)
@@ -61,30 +63,33 @@ geneFilter <- structure(function
     geneid <- intersect(geneid, qua.id[[k]])
   }
     
-  new.esets <- lapply(esets, function(eset){
-    return(eset[geneid,])
+  new.obj <- lapply(obj, function(obj.ele){
+    return(obj.ele[geneid,])
   })
   
-  return(new.esets)
-  ### returns a list of ExpressionSets with genes filtered 
+  return(new.obj)
+  ### returns a list of ExpressionSets matrix or SummarizedExperiment objects
+  ### with genes filtered 
 },ex=function(){
+  set.seed(8)
   library(curatedOvarianData)
   library(GenomicRanges)
-  data( E.MTAB.386_eset )
-  eset1 <- E.MTAB.386_eset[1:500, 1:5]
-  eset2 <- E.MTAB.386_eset[1:500, 6:10]
-  eset3 <- E.MTAB.386_eset[1:500, 11:15]  
-  esets <- list(eset1, eset2, eset3) 
-  
-  result.set <- geneFilter(esets, 0)
+  source(system.file("extdata", "patientselection.config",
+                     package="curatedOvarianData"))
+  source(system.file("extdata", "createEsetList.R", package="curatedOvarianData"))
+  esets.list <- lapply(esets, function(eset){
+    return(eset[1:1500, 1:10])
+  })
+  esets.list <- esets.list[1:5]
+  result.set <- geneFilter(esets.list, 0)
   result.set
   ### as we cannot calculate correlation with one set, this function just 
   ### delivers the same set if esets has length 1
-  result.oneset <- geneFilter(list(eset1))
+  result.oneset <- geneFilter(esets.list[1])
   result.oneset
   
   ## Support matrices
-  X.list <- lapply(esets, function(eset){
+  X.list <- lapply(esets.list, function(eset){
     return(exprs(eset)) ## Columns represent samples!
   })
   result.set <- geneFilter(X.list, 0)

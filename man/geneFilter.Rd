@@ -2,14 +2,17 @@
 \alias{geneFilter}
 \title{geneFilter}
 \description{the function to filter genes by intergrative correlation}
-\usage{geneFilter(esets, cor.cutoff = 0.5)}
+\usage{geneFilter(obj, cor.cutoff = 0.5)}
 \arguments{
-  \item{esets}{a list of ExpressionSet, matrix or SummarizedExperiment objects. If its elements are matrices,
+  \item{obj}{a list of ExpressionSet, matrix or SummarizedExperiment objects. If its elements are matrices,
 columns represent samples, rows represent genes}
-  \item{cor.cutoff}{the cutoff threshold for filtering genes}
+  \item{cor.cutoff}{the cutoff threshold for filtering genes. Only when the integrative correlation
+between every pair of sets is larger than the cutoff value, will the gene 
+be selected.}
 }
 
-\value{returns a list of ExpressionSets with genes filtered }
+\value{returns a list of ExpressionSets matrix or SummarizedExperiment objects
+with genes filtered }
 
 \author{Levi Waldron, Christoph Bernau, Yuqing Zhang}
 
@@ -17,23 +20,25 @@ columns represent samples, rows represent genes}
 
 
 \examples{
+set.seed(8)
 library(curatedOvarianData)
 library(GenomicRanges)
-data( E.MTAB.386_eset )
-eset1 <- E.MTAB.386_eset[1:500, 1:5]
-eset2 <- E.MTAB.386_eset[1:500, 6:10]
-eset3 <- E.MTAB.386_eset[1:500, 11:15]  
-esets <- list(eset1, eset2, eset3) 
-
-result.set <- geneFilter(esets, 0)
+source(system.file("extdata", "patientselection.config",
+                   package="curatedOvarianData"))
+source(system.file("extdata", "createEsetList.R", package="curatedOvarianData"))
+esets.list <- lapply(esets, function(eset){
+  return(eset[1:1500, 1:10])
+})
+esets.list <- esets.list[1:5]
+result.set <- geneFilter(esets.list, 0)
 result.set
 ### as we cannot calculate correlation with one set, this function just 
 ### delivers the same set if esets has length 1
-result.oneset <- geneFilter(list(eset1))
+result.oneset <- geneFilter(esets.list[1])
 result.oneset
 
 ## Support matrices
-X.list <- lapply(esets, function(eset){
+X.list <- lapply(esets.list, function(eset){
   return(exprs(eset)) ## Columns represent samples!
 })
 result.set <- geneFilter(X.list, 0)

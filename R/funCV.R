@@ -1,6 +1,6 @@
 funCV <- structure(function
 ### Cross validation function
-(eset,
+(obj,
  ### a ExpressionSet, matrix or SummarizedExperiment object. If it is a matrix,
  ### columns represent samples 
  fold,  
@@ -12,27 +12,27 @@ funCV <- structure(function
  funCvSubset=cvSubsets
  ### function to divide one Expression Set into subsets for cross validation
 ){
-  setindex <- funCvSubset(eset, fold) 
+  setindex <- funCvSubset(obj, fold) 
   ## cross validation
   z <- numeric(fold)
   for(i in 1:fold){
     print(paste("fold = ", i, sep=""))
-    testeset <- eset[, setindex[[i]]]
-    traineset <- eset[, -(setindex[[i]])]
+    testeset <- obj[, setindex[[i]]]
+    traineset <- obj[, -(setindex[[i]])]
     
-    if(class(eset)=="ExpressionSet"){
+    if(class(obj)=="ExpressionSet"){
       testX <- t(exprs(testeset))
       trainX <- t(exprs(traineset))
     }
-    else if(class(eset)=="matrix"){
+    else if(class(obj)=="matrix"){
       testX <- t(testeset)
       trainX <- t(traineset)
     }
-    else if(class(eset)=="SummarizedExperiment"){
+    else if(class(obj)=="SummarizedExperiment"){
       testX <- t(assay(testeset))
       trainX <- t(assay(traineset))
     }
-    else stop("Wrong class of eset!")
+    else stop("Wrong class of obj!")
           
     testY <- y.var[setindex[[i]], ]
     testY[, 1] <- as.numeric(as.character(testY[, 1]))
@@ -53,10 +53,16 @@ funCV <- structure(function
 },ex=function(){
   library(curatedOvarianData)
   library(GenomicRanges)
+  set.seed(8)
   data( E.MTAB.386_eset )
   eset <- E.MTAB.386_eset[1:100, 1:30]
-  time <- sample(2000:5000, 30)
-  cens <- sample(0:1, 30, replace=TRUE)
+  time <- eset$days_to_death
+  cens.chr <- eset$vital_status
+  cens <- c()
+  for(i in 1:length(cens.chr)){
+    if(cens.chr=="living") cens[i] <- 1
+    else cens[i] <- 0
+  }
   y <- Surv(time, cens)  
   y1 <- cbind(time, cens)
   

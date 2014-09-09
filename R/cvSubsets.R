@@ -1,6 +1,6 @@
 cvSubsets <- structure(function
 ### To generate a list of subsets(indices of observations) from one set
-(eset,
+(obj,
 ### a ExpressionSet, matrix or SummarizedExperiment object. If it is a matrix,
 ### columns represent samples
 fold
@@ -8,32 +8,32 @@ fold
 ### Number of observations in the set does not need to be a multiple of fold
 ){
   setindex <- list()
-  if(class(eset)=="ExpressionSet")
-    seq <- 1:ncol(exprs(eset))
-  else if(class(eset)=="matrix")
-    seq <- 1:ncol(eset)
-  else if(class(eset)=="SummarizedExperiment")
-    seq <- 1:ncol(assay(eset))
-  else stop("Wrong class of eset!")
+  if(class(obj)=="ExpressionSet")
+    seq <- 1:ncol(exprs(obj))
+  else if(class(obj)=="matrix")
+    seq <- 1:ncol(obj)
+  else if(class(obj)=="SummarizedExperiment")
+    seq <- 1:ncol(assay(obj))
+  else stop("Wrong class of obj!")
     
   n.subset <- round(length(seq) / fold)
   ## divide into 4 subsets randomly   
   for(i in 1:(fold-1)){
-    if(class(eset)=="ExpressionSet")
-      seq <- 1:ncol(exprs(eset))
-    else if(class(eset)=="matrix")
-      seq <- 1:ncol(eset)
-    else if(class(eset)=="SummarizedExperiment")
-      seq <- 1:ncol(assay(eset))
+    if(class(obj)=="ExpressionSet")
+      seq <- 1:ncol(exprs(obj))
+    else if(class(obj)=="matrix")
+      seq <- 1:ncol(obj)
+    else if(class(obj)=="SummarizedExperiment")
+      seq <- 1:ncol(assay(obj))
     if(length(do.call(c, setindex)) > 0) seq <- seq[-do.call(c, setindex)]
     setindex[[i]] <- sample(seq, n.subset, replace=FALSE)  
   }
-  if(class(eset)=="ExpressionSet")
-    seq <- 1:ncol(exprs(eset))
-  else if(class(eset)=="matrix")
-    seq <- 1:ncol(eset)
-  else if(class(eset)=="SummarizedExperiment")
-    seq <- 1:ncol(assay(eset))
+  if(class(obj)=="ExpressionSet")
+    seq <- 1:ncol(exprs(obj))
+  else if(class(obj)=="matrix")
+    seq <- 1:ncol(obj)
+  else if(class(obj)=="SummarizedExperiment")
+    seq <- 1:ncol(assay(obj))
   setindex[[fold]] <- seq[-do.call(c, setindex)]
   return(setindex)
   ### returns the list of indices of subsets
@@ -41,6 +41,8 @@ fold
   library(curatedOvarianData)
   library(GenomicRanges)
   data(E.MTAB.386_eset)
+  
+  set.seed(8)
   id <- cvSubsets(E.MTAB.386_eset, 3)
   
   subset1 <- E.MTAB.386_eset[, id[[1]]]
@@ -72,5 +74,4 @@ fold
   sset <- SummarizedExperiment(assays=SimpleList(counts=counts),
                                rowData=rowData, colData=colData)
   id4 <- cvSubsets(sset, 5)
-  
 })

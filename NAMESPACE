@@ -8,5 +8,6 @@ importFrom(CoxBoost, CoxBoost)
 importFrom(Hmisc, rcorr.cens)
 importFrom(gbm, basehaz.gbm)
 exportPattern("^[[:alpha:]]+")
+export(cvSubsets, funCV, geneFilter, getTrueModel, masomenos, plusMinus, rowCoxTests, simBootstrap, simData, simTime, zmatrix)
 useDynLib(simulatorZ,.registration=TRUE)
 

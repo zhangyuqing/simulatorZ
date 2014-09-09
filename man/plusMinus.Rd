@@ -32,6 +32,7 @@
 
 
 \examples{
+set.seed(8)
 library(curatedOvarianData)
 data( E.MTAB.386_eset )
 eset <- E.MTAB.386_eset[1:100, 1:30]

@@ -7,9 +7,9 @@ Author: Levi Waldron, Christoph Bernau, Yuqing Zhang
 Maintainer: Yuqing Zhang <zhangyuqing.pkusms@gmail.com>
 Description: this package performs non-parametric and parametric bootstrap on Expression Sets
 License: Artistic-2.0
-Depends: R (>= 3.1), Biobase, survival, CoxBoost, gbm, Hmisc
-Imports: GenomicRanges
-Suggests: curatedOvarianData, BiocStyle, superpc
+Depends: R (>= 3.1), Biobase, survival, CoxBoost
+Imports: GenomicRanges, gbm, Hmisc
+Suggests: curatedOvarianData, parathyroidSE, BiocStyle, superpc
 URL: https://github.com/zhangyuqing/simulatorZ
 BugReports: https://github.com/zhangyuqing/simulatorZ
 biocViews: Survival
