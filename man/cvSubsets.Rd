@@ -12,7 +12,7 @@ Number of observations in the set does not need to be a multiple of fold}
 
 \value{returns the list of indices of subsets}
 
-\author{Levi Waldron, Christoph Bernau, Yuqing Zhang}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 

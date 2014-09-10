@@ -17,7 +17,7 @@ matrix, data.frame(with 2 columns) or Surv object}
 
 \value{outputs one matrix of validation statistics}
 
-\author{Levi Waldron, Christoph Bernau, Yuqing Zhang}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 

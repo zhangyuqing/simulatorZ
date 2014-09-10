@@ -21,7 +21,7 @@ lp: true linear predictors}
 
 \value{survival time is saved in phenodata, here the function still returns the ExpressionSets}
 
-\author{Levi Waldron, Christoph Bernau, Yuqing Zhang}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 

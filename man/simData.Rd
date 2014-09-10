@@ -28,7 +28,7 @@ prob.desired and prob.real are only useful when balance.varaibles is set.
 prob.desired shows overall distrubition of the specified covariate. prob.list
 shows the sampling probability in each set after balancing}
 
-\author{Levi Waldron, Christoph Bernau, Yuqing Zhang}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 

@@ -1,65 +1,30 @@
-%\VignetteIndexEntry{SimulatorZ package vignette}
+%\VignetteIndexEntry{SimulatorZ}
 %\VignettePackage{SimulatorZ}
-%\VignetteEngine{utils::Sweave}
 
-\documentclass[a4paper, 10pt]{article}
+\documentclass{article}
+
 <<style, eval=TRUE, echo=FALSE, results=tex>>=
-BiocStyle::latex() 
-@
-\usepackage{amsfonts}
-\usepackage{amssymb}
-\usepackage{amsmath}
-\usepackage{amsthm}
-\usepackage{latexsym}
-\usepackage{verbatim}
-\usepackage{epsfig}
-\usepackage{fleqn}
-\usepackage{color}
-\usepackage{mathrsfs}
-\usepackage{eufrak}
-\usepackage{graphicx}
-\usepackage{multicol}
-\usepackage{amsbsy}
-\usepackage{bm}
+BiocStyle::latex()
+@ 
 
-\parindent0pt
-\parskip1ex
-\oddsidemargin-0.5cm
-\topmargin-.2cm
-\textheight23cm
-\textwidth13cm
-\headsep0.5cm
-\pagestyle{plain}
-
-\def\su{\sum_{i=1}^n}
-\def\etall{\mbox{{\it et al., }}}
-\def\etal{\mbox{{\it et al. }}}
-
-
-\title{\bf{SimulatorZ} package vignette}
-\author{Yuqing Zhang\footnote{zhangyuqing.pkusms@gmail.com}, \\ Christoph Bernau\footnote{Christoph.Bernau@lrz.de},\\ Levi Waldron\footnote{levi.waldron@hunter.cuny.edu}}
+\title{\Rpackage{SimulatorZ} package vignette}
+\author{Yuqing Zhang\footnote{\email{zhangyuqing.pkusms@gmail.com}}, Christoph Bernau\footnote{\email{Christoph.Bernau@lrz.de}},Levi Waldron\footnote{\email{levi.waldron@hunter.cuny.edu}}}
 
 
 \begin{document}
-
 \SweaveOpts{concordance=TRUE}
-\date{Edited: August 2014; \\ Compiled: \today}
 
 \maketitle
 \tableofcontents
 
-<<options, echo=FALSE>>=  
-options(width=72)
-@
-
 \section{Introduction}
-\bf{simulatorZ} is a package intended primarily to simulate collections of independent genomic data sets, as well as performing training and validation with predicting algorithms. It derived from studies concerning cross study validation performances. 
+\Rpackage{simulatorZ} is a package intended primarily to simulate collections of independent genomic data sets, as well as performing training and validation with predicting algorithms. It derived from studies concerning cross study validation performances. 
 
 Cross study validation (CSV) is an alternative to traditional cross-validation (CV) in research domains where predictive modeling is applied to high-dimensional data and where multiple comparable datasets are publicly available. Recent studies have both shown the potential power and cast questions upon this method. For example, Bernau et al. noticed a dramatic drop of CSV performance compared to that of CV, which brings on a follow-up research to seek for deeper insight of the heterogeneity between CV and CSV.
 
 Moreover, public available microarray data sets provide a wider platform for research means. However, the lack of handful tools to make good use of these datasets sets limit to more promising researches. 
 
-Based on these two incentives, \bf{simulatorZ} is designed to both generate collections of independent genomic data sets, and provide methods for clinical hazard prediction. These two main features of the package are also the novelty of it. 
+Based on these two incentives, \Rpackage{simulatorZ} is designed to both generate collections of independent genomic data sets, and provide methods for clinical hazard prediction. These two main features of the package are also the novelty of it. 
 
 In this vignette, we give a short tour of the package and will show how to use it for interesting tasks.
 
@@ -71,28 +36,28 @@ library(simulatorZ)
 @
 
 \subsection{Approach in the simulation}
-\bf{simulatorZ} package involves a resampling scheme illustrated in Bernau et al.(Bioinformatics, In press), which simulates a collection of independent genomic sets with gene expression profiles and time to event outcomes. The resampling procesure involves both parametric and non-parametric bootstrap. The whole process can be divided into three steps:
+\Rpackage{simulatorZ} package involves a resampling scheme illustrated in Bernau et al.(Bioinformatics, In press), which simulates a collection of independent genomic sets with gene expression profiles and time to event outcomes. The resampling procesure involves both parametric and non-parametric bootstrap. The whole process can be divided into three steps:
 \begin{itemize}
   \item non-parametric bootstrap at set level. \\ In this step, we sample the set labels with replacement, from a list of sets we use as original ones. This will capture the differences between studies, and the variability of whether the studies are accessible.
   \item non-parametric bootstrap at patient level.\\ We resample observations with replacement from each set corresponding to the randomly drawn labels obtained from step 1.
-  \item parametric bootstrap to simulate time to event. \\ The parametric step involves a generative model that combines the truncated inversion method in Bender et al. (2005) , the Nelson-Aalen estimator for cumulative hazard functions, and  CoxBoost method (Binder and Schumacher, 2008) to simulate survival times.
+  \item parametric bootstrap to simulate time to event. \\ The parametric step involves a generative model that combines the truncated inversion method in Bender et al. (2005) \cite{PMID: 15724232}, the Nelson-Aalen estimator for cumulative hazard functions, and  CoxBoost method (Binder and Schumacher, 2008)\cite{PMID: 18186927} to simulate survival times.
 \end{itemize}
-\bf{simulatorZ} not only make use of this approach, but also improves it by applying a stratified non-parametric bootstrap at the patient level(step 2), to balance the prevalence of covariates in the simulated sets, thus allowing for more diverse purpose of use in similar researches.
+\Rpackage{simulatorZ} not only make use of this approach, but also improves it by applying a stratified non-parametric bootstrap at the patient level(step 2), to balance the prevalence of covariates in the simulated sets, thus allowing for more diverse purpose of use in similar researches.
 
-The package provides separate functions for both parametric and non-parametric step in the simulation(\bf{simData(), simTime()}), as well as one driver function to complete the whole process(\bf{simBootstrap()}). It supports both \bf{ExpressionSets} and \bf{SummarizedExperiment} object and the examples below will demonstrate how to use the functions for both these types respectively. 
+The package provides separate functions for both parametric and non-parametric step in the simulation(\Rfunction{simData, simTime}), as well as one driver function to complete the whole process(\Rfunction{simBootstrap}). It supports both \Rclass{ExpressionSets} and \Rclass{SummarizedExperiment} object and the examples below will demonstrate how to use the functions for both these types respectively. 
 
-Examples in this vignette uses \bf{ExpressionSets} from \bf{curatedOvarianData}} and \bf{SummarizedExperiment} from \bf{parathyroidSE} in \bf{Bioconductor}. Users who are not familiar with this two types of object could refer to the corresponding manuals for more information.
+Examples in this vignette uses \Rclass{ExpressionSets} from \Biocexptpkg{curatedOvarianData}} and \Rclass{SummarizedExperiment} from \Biocexptpkg{parathyroidSE} in \Bioconductor{}. Users who are not familiar with this two types of object could refer to the corresponding manuals for more information.
 
-\subsection{Simulation on \bf{ExpressionSets}}
+\subsection{Simulation on \Rclass{ExpressionSets}}
 \subsubsection{non-parametric bootstrap}
-First of all, we use the \bf{curatedOvarianData} package to obtain a list of ExpressionSets:
+First of all, we use the \Biocexptpkg{curatedOvarianData} package to obtain a list of \Rclass{ExpressionSets}:
 <<echo=TRUE,results=hide>>=
 library(curatedOvarianData)
 source(system.file("extdata",
                    "patientselection.config",package="curatedOvarianData"))
 source(system.file("extdata", "createEsetList.R", package="curatedOvarianData"))
 @
-Now we have a list called \bf{esets} including 14 \bf{ExpressionSets}. In order to simplify the calculation, we select a subset of this list, to form a new list of set, each containing 1000 features.
+Now we have a list called \Robject{esets} including 14 \Rclass{ExpressionSets}. In order to simplify the calculation, we select a subset of this list, to form a new list of set, each containing 1000 features.
 <<echo=TRUE,results=hide>>=
 esets <- esets[1:8]
 esets <- lapply(esets, function(eset){
@@ -100,23 +65,23 @@ esets <- lapply(esets, function(eset){
 })
 @
 This will be our list of original sets for further simulation. Noted that here we only take a subset for the convenience. It is not obligatory for the sets to have the same number of observations. However, it is important that they should have the SAME features.
-\bf{simData()} is the function to perform non-parametric bootstrap resampling at both set and patient level. So if we want to simulate a collection of sets each containing 500 observations with the same method mentioned above, we can use \bf{simData()} like this:
+\Rfunction{simData} is the function to perform non-parametric bootstrap resampling at both set and patient level. So if we want to simulate a collection of sets each containing 500 observations with the same method mentioned above, we can use \Rfunction{simData} like this:
 <<echo=TRUE>>=
 set.seed(8)
 sim.esets <- simData(esets, 500)
 names(sim.esets)
 @
 
-The output includes another list of the simulated data sets, and the \bf{setsID} and  \bf{indices} correspond to which original set and patient label is selected in the simulation process, which makes it easy to keep track of the data. The other two output \bf{prob_desired} and \bf{prob.list} will be discussed in detail later.
+The output includes another list of the simulated data sets, and the \Robject{setsID} and  \Robject{indices} correspond to which original set and patient label is selected in the simulation process, which makes it easy to keep track of the data. The other two output \Robject{prob.desired} and \Robject{prob.real} will be discussed in detail later.
 
-Also, simData() is quite flexible in that it can skip re-sampling set labels if we do not want to. We can achieve this by changing the \bf{type} parameter in the function:
+Also, \Rfunction{simData} is quite flexible in that it can skip re-sampling set labels if we do not want to. We can achieve this by changing the \Robject{type} parameter in the function:
 
 <<echo=TRUE>>=
 sim.esets <- simData(esets, 500, type="one-step")
 @
 
 \subsubsection{Balance the Prevalence of Covariates}
-As we mentioned before, \bf{simulatorZ} supports balancing the distribution of covariates which is also done with \bf{simData()}. The parameter \bf{balance.variables} is a string or a vector of strings that gives the names of covariates to be balanced. This makes the distribution of the covariate(or joint distribution of all those covariates) resemble that in all the original sets combined, by re-weighting the probability of sampling. For instance, we will balance \bf{"tumorstage"} like this:
+As we mentioned before, \Rpackage{simulatorZ} supports balancing the distribution of covariates which is also done with \Rfunction{simData}. The parameter \Robject{balance.variables} is a string or a vector of strings that gives the names of covariates to be balanced. This makes the distribution of the covariate(or joint distribution of all those covariates) resemble that in all the original sets combined, by re-weighting the probability of sampling. For instance, we will balance \Rcode{"tumorstage"} like this:
 
 First, we eliminate observations missing the value in "tumorstage"(if "tumorstage" is not available in any set, it is ruled out from the original set).
 
@@ -139,9 +104,9 @@ sim.sets <- simData(cleaned.esets, 500,
 sim.sets$prob.desired
 sim.sets$prob.real[[1]]
 @
-Now we will explain the output \bf{prob.desired} and \bf{prob.real}. These two output are only useful when we consider the distribution of covariates. \bf{prob.desired} is the overall distribution calculated by combining all observations together. \bf{prob.real} is a list of probablities. Each elements in the list corresponds to the covariate value of patients in certain original set. For example, in the codes above, \bf{sim.sets$prob.real[[1]]} prints out the tumorstage value, and the probability of being sampled in the first original data set.
+Now we will explain the output \Robject{prob.desired} and \Robject{prob.real}. These two output are only useful when we consider the distribution of covariates. \Robject{prob.desired} is the overall distribution calculated by combining all observations together. \Robject{prob.real} is a list of probablities. Each elements in the list corresponds to the covariate value of patients in certain original set. For example, in the codes above, \Rcode{prob.real[[1]]} prints out the tumorstage value, and the probability of being sampled in the first original data set.
 
-We can also consider the joint distribution of two covariates at the same time. Like if we want to re-weight the resampling probability considering both \bf{tumorstage} and \bf{grade}, first we need to do similar cleaning:
+We can also consider the joint distribution of two covariates at the same time. Like if we want to re-weight the resampling probability considering both tumorstage and grade, first we need to do similar cleaning:
 
 <<echo=TRUE>>=
 cleaned.esets <- list()
@@ -156,7 +121,7 @@ for(i in 1:length(esets)){
 }
 @
 
-Then we set \bf{balance.variables} as a character vector:
+Then we set \Robject{balance.variables} as a character vector:
 <<echo=TRUE>>=
 sim.sets <- simData(cleaned.esets, 500, 
                     balance.variables=c("tumorstage", "grade"))
@@ -166,10 +131,10 @@ sim.sets$prob.real[[1]]
 
 Note that this function is only suitable for discrete covariates. We need to discretize the continuous variables first if we wish to consider them.
 
-Before we move to the next part, there is one more comment on this function. \bf{simData()} does not ask for a specific response variable, even though it has a parameter for it. This is useful when we use simBootstrap() directly. If a y variable is specified, \bf{simData()} will pass it to the output without dealing with it. 
+Before we move to the next part, there is one more comment on this function. \Rfunction{simData} does not ask for a specific response variable, even though it has a parameter for it. This is useful when we use \Rfunction{simBootstrap} directly. If a y variable is specified, \Rfunction{simData} will pass it to the output without dealing with it. 
 
 \subsubsection{Parametric Boostrap}
-To simulated corresponding time to event, first we need to obtain the true model from original data sets. \bf{getTrueModel()} function first fit CoxBoost to the original sets for coefficients, then calculates the base cumulative survival and censoring hazard. These will all be used by \bf{simTime()}, which takes the output of \bf{getTrueModel()} to simulate the time and censoring status in simulated data sets.
+To simulated corresponding time to event, first we need to obtain the true model from original data sets. \Rfunction{getTrueModel} function first fit CoxBoost to the original sets for coefficients, then calculates the base cumulative survival and censoring hazard. These will all be used by \Rfunction{simTime}, which takes the output of \Rfunction{getTrueModel} to simulate the time and censoring status in simulated data sets.
 These will require a response variable, which we can extract from the data sets in this example. 
 <<echo=TRUE>>=
 y.list <- lapply(esets, function(eset){
@@ -190,13 +155,13 @@ true.mod <- getTrueModel(esets, y.list, 100)
 <<echo=TRUE>>=
 names(true.mod)
 @
-\bf{beta} represents coefficients obtained from fitting CoxBoost to the original data sets. \bf{lp} is linear predictor calculated by multiplying coefficients with the gene expression matrix. \bf{survH} and \bf{censH} are cumulative survival and censoring hazard while \bf{grid} is the corresponding time span. 
+\Robject{beta} represents coefficients obtained from fitting CoxBoost to the original data sets. \Robject{lp} is linear predictor calculated by multiplying coefficients with the gene expression matrix. \Robject{survH} and \Robject{censH} are cumulative survival and censoring hazard while \Robject{grid} is the corresponding time span. 
 <<echo=TRUE,results=hide>>=
 simmodel <- simData(esets, 500, y.list)
 new.esets <- simTime(simmodel, true.mod)
 @
-\bf{simTime()} output the same form of list as input, only different in that the y.vars is updated.
-Both parameters of \bf{simTime()} can be constructed from scratch. Please refer to the examples sim the help manuel.
+\Rfunction{simTime} output the same form of list as input, only different in that the y.vars is updated.
+Both parameters of \Rfunction{simTime} can be constructed from scratch. Please refer to the examples sim the help manuel.
 
 \subsubsection{The driver function}
 In order to achieve the three-step simulation, we can complete it step-by-step in the following way:
@@ -206,11 +171,11 @@ sim.sets <- simData(esets, 500, y.list)
 sim.sets <- simTime(sim.sets, true.mod)
 @
 
-Or, we can use the driver function \bf{simBootstrap()} directly:
+Or, we can use the driver function \Rfunction{simBootstrap} directly:
 <<echo=TRUE,results=hide>>=
 sim.sets <- simBootstrap(esets, y.list, 500, 100)
 @
-This driver function is capable of skipping resampling set labels and balancing covariates. We can use its \bf{type} and \bf{balance.variables} the same way as we use them in \bf{simData()}. However, separating the functions allows users to use different true models. For example, we can combine all the data sets into one big set and use it to simulate one true model, then use it for every simulated independent set.
+This driver function is capable of skipping resampling set labels and balancing covariates. We can use its \Robject{type} and \Robject{balance.variables} the same way as we use them in \Rfunction{simData}. However, separating the functions allows users to use different true models. For example, we can combine all the data sets into one big set and use it to simulate one true model, then use it for every simulated independent set.
 <<echo=TRUE>>=
 y.vars=y.list
 balance.variables=c("tumorstage", "grade")
@@ -248,12 +213,12 @@ for(listid in 1:length(esets)){
 res <- list(beta=beta, grid=grid, survH=survH, censH=censH, lp=lp)
 simmodels <- simTime(simmodels, res)
 @
-Users can also build up their own true model based on the example in \bf{simTime()}, which ensures flexibility of this package. Speaking of flexibility, the \bf{y.vars} parameters also support \bf{Surv, matrix} and \bf{data.frame} objects, which is quite user-friendly. 
+Users can also build up their own true model based on the example in \Rfunction{simTime}, which ensures flexibility of this package. Speaking of flexibility, the \Robject{y.vars} parameters also support \Rclass{Surv, matrix} and \Rclass{data.frame} objects, which is quite user-friendly. 
 
 
 
-\subsection{Simulation on \bf{SummarizedExpreriment}}
-Basiclly, the simulation over \bf{SummarizedExperiment} is similar to that over \bf{ExpressionSets}. So we will illustrate that the \bf{simulatorZ} is suitable for simulating from one orginal set as well. First, we use \bf{parathysoidSE} package to obtain a \bf{SummarizedExpreriment} object.
+\subsection{Simulation on \Rclass{SummarizedExpreriment}}
+Basiclly, the simulation over \Rclass{SummarizedExperiment} is similar to that over \Rclass{ExpressionSets}. So we will illustrate that the \Rpackage{simulatorZ} is suitable for simulating from one orginal set as well. First, we use \Biocexptpkg{parathysoidSE} package to obtain a \Rclass{SummarizedExpreriment} object.
 <<echo=TRUE,results=hide>>=
 library(parathyroidSE)
 data("parathyroidGenesSE")
@@ -266,12 +231,12 @@ sim.sets <- simData(list(sset), 100)
 
 
 \section{Training and Validation on genomic data sets}
-Another important feature of \bf{simulatorZ} is to perform predictive training and validation over data sets. 
+Another important feature of \Rpackage{simulatorZ} is to perform predictive training and validation over data sets. 
 
 \subsection{Independent within study validation (Superpc)} 
 The following example shows how to use SuperPC (Blair and Tibshirani, 2004) algorithm to train and validate on one ExpressionSet
 \subsubsection{create training set and large validation set}
-We use the first element in \bf{esets} to do the within study validation. 
+We use the first element in \Robject{esets} to do the within study validation. 
 First we generate a training set with 450 observations:
 <<echo=TRUE,results=hide>>=
 tr.size <- 450
@@ -338,11 +303,11 @@ Also, the correlation of this linear predictor to the true one is another import
 print('correlation to true lp')
 (corlps<-cor(lp.val,lpboot,method='pearson'))
 @ 
-\bf{simulatorZ} contains a function for the Mas-o-menus algorithm(Zhao et al., 2013) to support simple training and validation task. Please see the help document for \bf{plusMinus()} function.
+\Rpackage{simulatorZ} contains a function for the Mas-o-menus algorithm(Zhao et al., 2013) to support simple training and validation task. Please see the help document for \Rfunction{plusMinus} function.
 
 
 \subsection{Cross Study Validation}
-With enough data sets, we can perform training and validation on one set as illustrated in the last section, or do cross study validation with multiple sets. If we hope to perform cross study validation between each pair of data sets, the \bf{simulatorZ} uses \bf{zmatrix()} to generate a matrix of C-Index. For the diagnostic elements, it performs cross validation. An example is presented as following:
+With enough data sets, we can perform training and validation on one set as illustrated in the last section, or do cross study validation with multiple sets. If we hope to perform cross study validation between each pair of data sets, the \Rpackage{simulatorZ} uses \Rfunction{zmatrix} to generate a matrix of C-Index. For the diagnostic elements, it performs cross validation. An example is presented as following:
 <<echo=T,results=hide>>=
 z <- zmatrix(obj=esets, y.vars=y.list,
              fold=3,trainingFun=plusMinus)
@@ -350,7 +315,7 @@ z <- zmatrix(obj=esets, y.vars=y.list,
 <<echo=TRUE>>=
 print(z)
 @
-Combining the two main features of \bf{simulatorZ}, we can first simulate a collection of independent genomic data sets, then perform the training and prediction with these data sets. The last example in this vignette will show how to complete this whole process.
+Combining the two main features of \Rpackage{simulatorZ}, we can first simulate a collection of independent genomic data sets, then perform the training and prediction with these data sets. The last example in this vignette will show how to complete this whole process.
 <<echo=TRUE,results=hide>>=
 Z.list <- list()
 CV <- CSV <- c()
@@ -383,8 +348,6 @@ boxplot(resultlist, col=c("white", "grey"), ylab="C-Index",
         boxwex = 0.25, xlim=c(0.5, 2.5))
 @
 \incfig{simulatorZ-vignette-box}{0.8\textwidth}{Boxplots of C-Index performance with cross validation and cross study validation.}{There is a dramatic drop of the CSV statistics compared to CV.}
-
-
 
 \section{Session Info}
 <<echo=T>>=

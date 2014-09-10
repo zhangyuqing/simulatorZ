@@ -1,7 +1,7 @@
 \name{geneFilter}
 \alias{geneFilter}
 \title{geneFilter}
-\description{the function to filter genes by intergrative correlation}
+\description{the function to filter genes by Intergrative Correlation}
 \usage{geneFilter(obj, cor.cutoff = 0.5)}
 \arguments{
   \item{obj}{a list of ExpressionSet, matrix or SummarizedExperiment objects. If its elements are matrices,
@@ -13,8 +13,10 @@ be selected.}
 
 \value{returns a list of ExpressionSets matrix or SummarizedExperiment objects
 with genes filtered }
-
-\author{Levi Waldron, Christoph Bernau, Yuqing Zhang}
+\references{Garrett-Mayer, E., Parmigiani, G., Zhong, X., Cope, L., 
+Gabrielson, E., Cross-study validation and combined analysis of gene 
+expression microarray data. Biostatistics. 2008 Apr;9(2):333-354.}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 

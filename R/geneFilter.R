@@ -1,5 +1,8 @@
 geneFilter <- structure(function
-### the function to filter genes by intergrative correlation
+### the function to filter genes by Intergrative Correlation
+##references<< Garrett-Mayer, E., Parmigiani, G., Zhong, X., Cope, L., 
+## Gabrielson, E., Cross-study validation and combined analysis of gene 
+## expression microarray data. Biostatistics. 2008 Apr;9(2):333-354.
 (obj,
  ### a list of ExpressionSet, matrix or SummarizedExperiment objects. If its elements are matrices,
  ### columns represent samples, rows represent genes

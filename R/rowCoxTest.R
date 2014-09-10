@@ -14,8 +14,9 @@
 #
 ###############################################################################
 
-coxmatC<-function(X,time,status){
-  ### method for handling ties (alternative 'breslow')
+coxmatC<-function
+### function to perform fast Cox regression
+(X,time,status){
   method <- "efron"
   result<-  .C("coxmat", regmat = as.double(X), ncolmat = 
                  as.integer(ncol(X)), nrowmat = as.integer(nrow(X)), 
@@ -36,8 +37,10 @@ coxmatC<-function(X,time,status){
 }
 
 
-fastCox <- function(X, y, learnind, criterion, ...) {
-  ### use learningset only and sort according to time
+fastCox <- function
+### Method for performing fast Cox regression
+(X, y, learnind, criterion, ...) {
+  
   X <- X[learnind, ]
   time <- y[learnind, 1]
   status <- y[learnind, 2]

@@ -1,15 +1,17 @@
 Package: simulatorZ
 Type: Package
-Title: perform bootstrap simulation on Expression Sets
+Title: Simulator for Collections of Independent Genomic Data Sets
 Version: 0.99.0
 Date: 2014-08-03
-Author: Levi Waldron, Christoph Bernau, Yuqing Zhang
+Author: Yuqing Zhang, Christoph Bernau, Levi Waldron
 Maintainer: Yuqing Zhang <zhangyuqing.pkusms@gmail.com>
-Description: this package performs non-parametric and parametric bootstrap on Expression Sets
+Description: simulatorZ is a package intended primarily to simulate collections of 
+             independent genomic data sets, as well as performing training and validation with 
+			 predicting algorithms. It supports ExpressionSets and SummarizedExperiment objects.
 License: Artistic-2.0
 Depends: R (>= 3.1), Biobase, survival, CoxBoost
 Imports: GenomicRanges, gbm, Hmisc
-Suggests: curatedOvarianData, parathyroidSE, BiocStyle, superpc
+Suggests: BiocStyle, curatedOvarianData, parathyroidSE, superpc
 URL: https://github.com/zhangyuqing/simulatorZ
 BugReports: https://github.com/zhangyuqing/simulatorZ
 biocViews: Survival

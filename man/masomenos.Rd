@@ -11,7 +11,7 @@ censoring status }
 
 \value{return betas}
 
-\author{Levi Waldron, Christoph Bernau, Yuqing Zhang}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 
