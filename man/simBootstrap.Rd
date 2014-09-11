@@ -26,13 +26,14 @@
 \name{simBootstrap}
 \alias{simBootstrap}
 \title{simBootstrap}
-\description{the driver function to perform three-step bootstrap simulation}
-\usage{simBootstrap(esets, y.vars, n.samples, parstep, type = "two-steps", 
+\description{the driver function to perform three-step bootstrap resampling 
+to get independent genomic data sets}
+\usage{simBootstrap(obj, y.vars, n.samples, parstep, type = "two-steps", 
     balance.variables = NULL, funSimData = simData, funTrueModel = getTrueModel, 
     funSurvTime = simTime)}
 \arguments{
-  \item{esets}{a list of ExpressionSets }
-  \item{y.vars}{a list of reponse variables}
+  \item{obj}{a list of ExpressionSet, matrix or SummarizedExperiment  }
+  \item{y.vars}{a list of reponse variables, elements can be class Surv, matrix or data.frame}
   \item{n.samples}{number of samples to resample in each set}
   \item{parstep}{step number to fit CoxBoost}
   \item{type}{whether to include resampling set labels }
@@ -43,7 +44,7 @@
 }
 
 \value{a list of values including:
-esets.list = a list of simulated ExpressionSets
+obj.list = a list of simulated objects the same type as input
 indices.list = a list of indices indicating which sample the simulated sample is in the 
 original set
 setsID = a vector to indicate the original ID of simulated sets, if 
@@ -54,40 +55,69 @@ survH.list = list of cumulative survival hazard
 censH.list = list of cumulative censoring hazard
 grid.list = list of timeline grid corresponding to survH and censH respectivley}
 
-\author{Levi Waldron, Christoph Bernau, Yuqing Zhang}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 
 
 \examples{
 library(curatedOvarianData)
-data( E.MTAB.386_eset )
-eset1 <- E.MTAB.386_eset[1:10, 1:5]
-eset2 <- E.MTAB.386_eset[1:10, 6:10]
-eset3 <- E.MTAB.386_eset[1:10, 11:15]  
-esets <- list(eset1, eset2, eset3) 
+library(GenomicRanges)
+source(system.file("extdata", "patientselection.config",
+                   package="curatedOvarianData"))
+source(system.file("extdata", "createEsetList.R", package="curatedOvarianData"))
+esets.list <- lapply(esets, function(eset){
+  return(eset[1:500, 1:20])
+})
+esets.list <- esets.list[c(1, 3, 4, 5)]
+## simulate on multiple ExpressionSets
+set.seed(8) 
 
-time1 <- eset1$days_to_death
-cens1 <- c(0, 0, 0, 1, 1)
-y1 <- Surv(time1, cens1)
-time2 <- eset2$days_to_death
-cens2 <- c(1, 1, 0, 0, 0)
-y2 <- Surv(time2, cens2)
-time3 <- eset3$days_to_death
-cens3 <- c(1, 0, 0, 0, 1)
-y3 <- Surv(time3, cens3)
-y.vars <- list(y1, y2, y3)
+y.list <- lapply(esets.list, function(eset){
+  time <- eset$days_to_death
+  cens.chr <- eset$vital_status
+  cens <- c()
+  for(i in 1:length(cens.chr)){
+    if(cens.chr[i] == "living") cens[i] <- 1
+    else cens[i] <- 0
+  }
+  y <- Surv(time, cens)
+  return(y)
+})
 
-simmodels <- simBootstrap(esets=esets, y.vars=y.vars, 10, 100)
-simmodels$esets.list[[1]]
+simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100)
+simmodels$obj.list[[1]]
 
 # skip resampling labels
-simmodels <- simBootstrap(esets=esets, y.vars=y.vars, 10, 100,
+simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100,
                           type="one-step")
 
 # balance covariates
-simmodels <- simBootstrap(esets=esets, y.vars=y.vars, 10, 100,
+simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100,
                           balance.variables="tumorstage")
 
+## Support matrices
+X.list <- lapply(esets.list, function(eset){
+  return(exprs(eset))
+})
+simmodels <- simBootstrap(obj=X.list, y.vars=y.list, 10, 100)
+
+## Support SummarizedExperiment
+nrows <- 200; ncols <- 10
+counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
+rowData <- GRanges(rep(c("chr1", "chr2"), c(50, 150)),
+                   IRanges(floor(runif(200, 1e5, 1e6)), width=100),
+                   strand=sample(c("+", "-"), 200, TRUE))
+colData <- DataFrame(Treatment=rep(c("ChIP", "Input"), 5),
+                     row.names=LETTERS[1:10])
+sset <- SummarizedExperiment(assays=SimpleList(counts=counts),
+                             rowData=rowData, colData=colData)
+
+s.list <- list(sset[,1:5], sset[,6:10])
+time <- c(540, 527, 668, 587, 620, 540, 527, 668, 587, 620)
+cens <- c(1, 0, 0, 1, 0, 1, 0, 0, 1, 0)
+y.vars <- Surv(time, cens)
+y.vars <- list(y.vars[1:5,],y.vars[1:5,])
+simmodels <- simBootstrap(obj=s.list, y.vars=y.vars, 100, 100) 
 }
 >>>>>>> upstream/master

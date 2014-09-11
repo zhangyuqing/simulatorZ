@@ -33,12 +33,13 @@ censoring status }
 
 \value{return betas}
 
-\author{Levi Waldron, Christoph Bernau, Yuqing Zhang}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 
 
 \examples{
+set.seed(8)
 library(curatedOvarianData)
 data( E.MTAB.386_eset )
 eset <- E.MTAB.386_eset[1:100, 1:30]

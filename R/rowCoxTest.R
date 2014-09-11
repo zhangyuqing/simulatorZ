@@ -14,8 +14,9 @@
 #
 ###############################################################################
 
-coxmatC<-function(X,time,status){
-  ### method for handling ties (alternative 'breslow')
+coxmatC<-function
+### function to perform fast Cox regression
+(X,time,status){
   method <- "efron"
   result<-  .C("coxmat", regmat = as.double(X), ncolmat = 
                  as.integer(ncol(X)), nrowmat = as.integer(nrow(X)), 
@@ -36,8 +37,10 @@ coxmatC<-function(X,time,status){
 }
 
 
-fastCox <- function(X, y, learnind, criterion, ...) {
-  ### use learningset only and sort according to time
+fastCox <- function
+### Method for performing fast Cox regression
+(X, y, learnind, criterion, ...) {
+  
   X <- X[learnind, ]
   time <- y[learnind, 1]
   status <- y[learnind, 2]
@@ -59,8 +62,31 @@ fastCox <- function(X, y, learnind, criterion, ...) {
 
 # equivalent to genefilter::rowttests for the cox model.  This is much faster
 # than calling coxph for each row of a ##igh-dimensional matrix.
-rowCoxTests <- function(X, y, option = c("fast", "slow"), ...) {
-  ### method for performing Cox regression
+rowCoxTests <- structure(function
+### method for performing Cox regression
+(X, 
+ ### Gene expression data. The following formats are available:   
+ ### matrix Rows correspond to observations, columns to variables.
+ ### data.frame Rows correspond to observations, columns to variables.
+ ### ExpressionSet rowCoxTests will extract the expressions using exprs().
+ y, 
+ ### Survival Response, an object of class:
+ ### Surv if X is of type data.frame or matrix
+ ### character if X is of type ExpressionSet. 
+ ### In this case y is the name of the survival 
+ ### response in the phenoData of X. If survival 
+ ### time and indicator are stored separately 
+ ### in the phenoData one can specify a two-element 
+ ### character vector the first element representing 
+ ### the survival time variable.
+ option = c("fast", "slow"), 
+ ### "fast" loops over rows in C, "slow" calls coxph 
+ ### directly in R. The latter method may be used if 
+ ### something goes wrong with the "fast" method.
+ ...
+ ### currently unused
+ ) {
+ 
   option <- match.arg(option)
   if (identical(option, "fast")) {
     X <- t(as.matrix(X))  #make variables columns
@@ -96,4 +122,20 @@ rowCoxTests <- function(X, y, option = c("fast", "slow"), ...) {
   ### dataframe with two columns: coef = Cox regression
   ###coefficients, p.value =
   ### Wald Test p-values.  Rows correspond to the rows of X.
-}
+},ex=function(){
+  #test
+  ##regressor-matrix (gene expressions)
+  X<-matrix(rnorm(1e6),nrow=10000)
+  #seed
+  set.seed(123)
+  #times
+  time<-rnorm(n=ncol(X),mean=100)
+  #censoring(1->death)
+  status<-rbinom(n=ncol(X),size=1, prob=0.8)
+  
+  ##survival object
+  y<-Surv(time,status)
+  
+  ## Do 10,000 Cox regressions:
+  system.time(output <- rowCoxTests(X=X,y=y, option="fast"))
+})
