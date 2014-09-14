@@ -10,7 +10,9 @@ censoring status }
 }
 
 \value{return betas}
-
+\references{Zhao, S., Huttenhower, G. P. C., and Waldron, L. (2013). Mas-o-menos:
+a simple sign averaging method for discrimination in genomic data analysis.
+http://biostats.bepress.com/harvardbiostat/paper158/. Accessed: 2013-10-24.}
 \author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 

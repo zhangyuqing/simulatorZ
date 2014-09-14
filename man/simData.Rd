@@ -36,9 +36,12 @@ shows the sampling probability in each set after balancing}
 \examples{
 library(curatedOvarianData)
 library(GenomicRanges)
-source(system.file("extdata", "patientselection.config",
-                   package="curatedOvarianData"))
-source(system.file("extdata", "createEsetList.R", package="curatedOvarianData"))
+
+data(GSE17260_eset)
+data(E.MTAB.386_eset)
+data(GSE14764_eset)
+
+esets <- list(GSE17260=GSE17260_eset, E.MTAB.386=E.MTAB.386_eset, GSE14764=GSE14764_eset)
 esets.list <- lapply(esets, function(eset){
   return(eset[1:1000, 1:10])
 })
