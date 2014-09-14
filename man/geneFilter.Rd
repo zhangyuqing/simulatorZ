@@ -16,7 +16,7 @@ with genes filtered }
 \references{Garrett-Mayer, E., Parmigiani, G., Zhong, X., Cope, L., 
 Gabrielson, E., Cross-study validation and combined analysis of gene 
 expression microarray data. Biostatistics. 2008 Apr;9(2):333-354.}
-\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
+\author{Yuqing Zhang}
 
 
 

@@ -30,7 +30,7 @@ survH.list = list of cumulative survival hazard
 censH.list = list of cumulative censoring hazard
 grid.list = list of timeline grid corresponding to survH and censH respectivley}
 
-\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
+\author{Yuqing Zhang, Levi Waldron}
 
 
 
@@ -63,10 +63,6 @@ y.list <- lapply(esets.list, function(eset){
 
 simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100)
 simmodels$obj.list[[1]]
-
-# skip resampling labels
-simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100,
-                          type="one-step")
 
 # balance covariates
 simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100,

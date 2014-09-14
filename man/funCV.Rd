@@ -14,7 +14,7 @@ columns represent samples }
 
 \value{returns the c statistics of cross validation(CV)}
 
-\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
+\author{Yuqing Zhang}
 
 
 

@@ -22,7 +22,7 @@ survH: cumulative hazard for survival times distribution
 censH: cumulative hazard for censoring times distribution
 lp: true linear predictors }
 
-\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
+\author{Yuqing Zhang, Christoph Bernau}
 
 
 

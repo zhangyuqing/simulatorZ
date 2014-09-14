@@ -70,10 +70,6 @@ simBootstrap <- structure(function
   simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100)
   simmodels$obj.list[[1]]
   
-  # skip resampling labels
-  simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100,
-                            type="one-step")
-  
   # balance covariates
   simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100,
                             balance.variables="tumorstage")

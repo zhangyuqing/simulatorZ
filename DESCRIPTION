@@ -10,7 +10,7 @@ Description: simulatorZ is a package intended primarily to simulate collections 
 			 predicting algorithms. It supports ExpressionSets and SummarizedExperiment objects.
 License: Artistic-2.0
 Depends: R (>= 3.1), Biobase, survival, CoxBoost
-Imports: GenomicRanges, gbm, Hmisc
+Imports: GenomicRanges, gbm, Hmisc, stats, graphics
 Suggests: BiocStyle, curatedOvarianData, parathyroidSE, superpc
 URL: https://github.com/zhangyuqing/simulatorZ
 BugReports: https://github.com/zhangyuqing/simulatorZ
