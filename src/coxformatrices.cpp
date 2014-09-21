@@ -80,7 +80,7 @@ R_CMethodDef cMethods[] = {
      };
 
 
-void R_init_coxformatrices(DllInfo *info)
+void R_init_simulatorZ(DllInfo *info)
      {
         R_registerRoutines(info, cMethods, NULL, NULL, NULL);
      }
