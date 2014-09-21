@@ -1,12 +1,15 @@
-import(Biobase, GenomicRanges, survival)
+import(Biobase, survival)
+importFrom(GenomicRanges, SummarizedExperiment)
 importFrom(stats, coefficients, coef, fitted, fitted.values, residuals, time,
            weights, predict)
 importFrom(graphics, plot)
 importFrom(graphics, boxplot)
-
 importFrom(CoxBoost, CoxBoost)
 importFrom(Hmisc, rcorr.cens)
 importFrom(gbm, basehaz.gbm)
+
+useDynLib(simulatorZ, .registration=TRUE)
+
 export(cvSubsets)
 export(funCV)
 export(geneFilter)
@@ -18,5 +21,7 @@ export(simData)
 export(simTime)
 export(zmatrix)
 export(rowCoxTests)
-useDynLib(simulatorZ,.registration=TRUE)
+
+
+
 

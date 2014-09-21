@@ -10,7 +10,7 @@ extern"C" {
  void coxmat(double *regmat, int *ncolmat, int *nrowmat, 
  double *reg,double *zscores,double *coefs,
  Sint   *maxiter,   Sint   *nusedx,    Sint   *nvarx, 
-       double *time,      Sint   *status, 
+	     double *time,      Sint   *status, 
 	     double *offset,	double *weights,   Sint   *strata,
 	     double *means,     double *beta,      double *u, 
 	     double *imat2,     double loglik[2],  Sint   *flag, 

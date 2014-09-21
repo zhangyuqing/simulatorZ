@@ -1,12 +1,12 @@
 test_simData <- function(){
   library(curatedOvarianData)
   data(E.MTAB.386_eset) 
-  origin_esets <- E.MTAB.386_eset
+  origin_esets <- list(E.MTAB.386_eset)
   balance.variables="tumorstage"
-  simmodel <- simData(esets=origin_esets, 
+  simmodel <- simData(obj=origin_esets, 
                       balance.variables=balance.variables,
                       n.samples=150, type="one-step")  
-  new_esets <- simmodel$esets
+  new_esets <- simmodel$obj
   covariates.origin <- lapply(origin_esets, function(eset){
     if(length(balance.variables) == 1){
       return(as.character(pData(eset)[, balance.variables]))

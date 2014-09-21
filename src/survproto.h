@@ -6,7 +6,7 @@
 */
 
 void agexact(Sint *maxiter,  Sint *nusedx,   Sint *nvarx,   double *start, 
-       double *stop,   Sint *event,    double *covar2,double *offset, 
+	     double *stop,   Sint *event,    double *covar2,double *offset, 
 	     Sint   *strata, double *means,  double *beta,  double *u, 
 	     double *imat2,  double loglik[2], Sint *flag,  double *work, 
 	     Sint   *work2,  double *eps,    double *tol_chol, double *sctest);

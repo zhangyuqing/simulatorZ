@@ -73,5 +73,5 @@ typedef long Sint;
 */
 #ifdef USING_R
 void cox_callback(int which, double *coef, double *first, double *second,
-  	  double *penalty, int *flag, int p, SEXP fexpr, SEXP rho);
+		  double *penalty, int *flag, int p, SEXP fexpr, SEXP rho);
 #endif
