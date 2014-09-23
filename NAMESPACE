@@ -1,3 +1,5 @@
+useDynLib(simulatorZ, .registration=TRUE)
+
 import(Biobase, survival)
 importFrom(GenomicRanges, SummarizedExperiment)
 importFrom(stats, coefficients, coef, fitted, fitted.values, residuals, time,
@@ -7,8 +9,6 @@ importFrom(graphics, boxplot)
 importFrom(CoxBoost, CoxBoost)
 importFrom(Hmisc, rcorr.cens)
 importFrom(gbm, basehaz.gbm)
-
-useDynLib(simulatorZ, .registration=TRUE)
 
 export(cvSubsets)
 export(funCV)

@@ -28,7 +28,6 @@ lp: true linear predictors}
 
 \examples{
 library(curatedOvarianData)
-library(GenomicRanges)
 data(GSE17260_eset)
 data(E.MTAB.386_eset)
 data(GSE14764_eset)

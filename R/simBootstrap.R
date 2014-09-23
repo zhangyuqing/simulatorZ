@@ -74,12 +74,6 @@ simBootstrap <- structure(function
   simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100,
                             balance.variables="tumorstage")
   
-  ## Support matrices
-  X.list <- lapply(esets.list, function(eset){
-    return(exprs(eset))
-  })
-  simmodels <- simBootstrap(obj=X.list, y.vars=y.list, 10, 100)
-  
   ## Support SummarizedExperiment
   nrows <- 200; ncols <- 10
   counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)

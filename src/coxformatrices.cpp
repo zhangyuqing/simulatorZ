@@ -70,22 +70,25 @@ void kk(double *mm){
   mm[1]=123;
 
   return;
+
 }
-
-
-static const
+static const 
 R_CMethodDef cMethods[] = {
-        {"coxmat", (DL_FUNC) &coxmat, 26},
-        NULL
-     };
+{
+                "coxmat", (DL_FUNC) &coxmat, 26},
+                NULL
+};
 
 
 void R_init_simulatorZ(DllInfo *info)
-     {
-        R_registerRoutines(info, cMethods, NULL, NULL, NULL);
-     }
-
-
+{
+     R_registerRoutines(info, cMethods, NULL, NULL, NULL);
+}
+     
+void R_unload_simulatorZ(DllInfo *info)
+{
+    (void) info;
+}
 }
 
 

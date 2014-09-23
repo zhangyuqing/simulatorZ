@@ -62,7 +62,6 @@ simTime <- structure(function
   ### survival time is saved in phenodata, here the function still returns the ExpressionSets
 },ex=function(){
   library(curatedOvarianData)
-  library(GenomicRanges)
   data(GSE17260_eset)
   data(E.MTAB.386_eset)
   data(GSE14764_eset)

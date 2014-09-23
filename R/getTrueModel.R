@@ -69,7 +69,6 @@ getTrueModel <- structure(function
   ### lp: true linear predictors 
 },ex=function(){
   library(curatedOvarianData)
-  library(GenomicRanges)
   data(GSE17260_eset)
   data(E.MTAB.386_eset)
   data(GSE14764_eset)
@@ -99,10 +98,5 @@ getTrueModel <- structure(function
   names(res2)
   res2$lp
   ## note that y.list[1] cannot be replaced by y.list[[1]]
-  
-  ## Support matrices
-  X.list <- lapply(esets.list, function(eset){
-    return(exprs(eset))
-  })
-  res3 <- getTrueModel(X.list, y.list, 100)  
+   
 })

@@ -39,7 +39,6 @@ fold
   ### returns the list of indices of subsets
 },ex=function(){
   library(curatedOvarianData)
-  library(GenomicRanges)
   data(E.MTAB.386_eset)
   
   set.seed(8)

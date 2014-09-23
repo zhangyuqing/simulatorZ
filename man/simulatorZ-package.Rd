@@ -10,7 +10,7 @@ predicting algorithms. It supports ExpressionSets and SummarizedExperiment objec
 \tabular{ll}{Package: \tab simulatorZ\cr
 Type: \tab Package\cr
 Title: \tab Simulator for Collections of Independent Genomic Data Sets\cr
-Version: \tab 0.99.0\cr
+Version: \tab 0.99.1\cr
 Date: \tab 2014-08-03\cr
 Author: \tab Yuqing Zhang, Christoph Bernau, Levi Waldron\cr
 Maintainer: \tab Yuqing Zhang <zhangyuqing.pkusms@gmail.com>\cr

@@ -19,7 +19,6 @@ Number of observations in the set does not need to be a multiple of fold}
 
 \examples{
 library(curatedOvarianData)
-library(GenomicRanges)
 data(E.MTAB.386_eset)
 
 set.seed(8)
