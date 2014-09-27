@@ -1,0 +1,19 @@
+Package: simulatorZ
+Type: Package
+Title: Simulator for Collections of Independent Genomic Data Sets
+Version: 0.99.1
+Date: 2014-08-03
+Author: Yuqing Zhang, Christoph Bernau, Levi Waldron
+Maintainer: Yuqing Zhang <zhangyuqing.pkusms@gmail.com>
+Description: simulatorZ is a package intended primarily to simulate
+        collections of independent genomic data sets, as well as
+        performing training and validation with predicting algorithms.
+        It supports ExpressionSets and SummarizedExperiment objects.
+License: Artistic-2.0
+Depends: R (>= 3.1), Biobase, survival, CoxBoost
+Imports: GenomicRanges, gbm, Hmisc, stats, graphics
+Suggests: BiocGenerics, RUnit, BiocStyle, curatedOvarianData,
+        parathyroidSE, superpc
+URL: https://github.com/zhangyuqing/simulatorZ
+BugReports: https://github.com/zhangyuqing/simulatorZ
+biocViews: Survival
