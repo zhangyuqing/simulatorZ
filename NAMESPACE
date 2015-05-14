@@ -1,7 +1,6 @@
 useDynLib(simulatorZ, .registration=TRUE)
 
-import(Biobase, survival)
-importFrom(GenomicRanges, SummarizedExperiment)
+import(Biobase, survival, GenomicRanges, SummarizedExperiment)
 importFrom(stats, coefficients, coef, fitted, fitted.values, residuals, time,
            weights, predict)
 importFrom(graphics, plot)

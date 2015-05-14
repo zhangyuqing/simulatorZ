@@ -4,8 +4,7 @@
 \description{To generate a list of subsets(indices of observations) from one set}
 \usage{cvSubsets(obj, fold)}
 \arguments{
-  \item{obj}{a ExpressionSet, matrix or SummarizedExperiment object. If it is a matrix,
-columns represent samples}
+  \item{obj}{a ExpressionSet, matrix or RangedSummarizedExperiment object. If it is a matrix, columns represent samples}
   \item{fold}{the number of folds in cross validation. 
 Number of observations in the set does not need to be a multiple of fold}
 }

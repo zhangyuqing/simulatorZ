@@ -7,8 +7,8 @@ in order to simulate independent genomic sets. }
 \usage{simData(obj, n.samples, y.vars = list(), type = "two-steps", 
     balance.variables = NULL)}
 \arguments{
-  \item{obj}{a list of ExpressionSets, matrics or SummarizedExperiments. If elements are 
-matricse, columns represent samples}
+  \item{obj}{a list of ExpressionSets, matrices or RangedSummarizedExperiments. If elements are 
+matrices, columns represent samples}
   \item{n.samples}{an integer indicating how many samples should be resampled from each set}
   \item{y.vars}{a list of response variables, can be Surv object, or matrix or data.frame
 with two columns}
@@ -70,7 +70,7 @@ X.list <- lapply(esets.list, function(eset){
 })
 simmodels <- simData(X.list, 20, type="two-steps")
 
-## Support SummarizedExperiment
+## Support RangedSummarizedExperiment
 nrows <- 200; ncols <- 6
 counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
 rowRanges <- GRanges(rep(c("chr1", "chr2"), c(50, 150)),

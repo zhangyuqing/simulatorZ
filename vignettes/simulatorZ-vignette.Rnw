@@ -21,7 +21,7 @@ BiocStyle::latex()
 \Rpackage{simulatorZ} is a package for generating realistic
 simulations of a range of genomic data types, based on real
 experimental data contained in \Rclass{ExpressionSet} or
-\Rclass{SummarizedExperiment} data containers.  It can generate
+\Rclass{RangedSummarizedExperiment} data containers.  It can generate
 simulations of a single dataset based on a reference experimental
 dataset, or of a collection of independent datasets based on a
 reference collection.  Details of the simulation methodology are
@@ -78,9 +78,9 @@ level (step 2), to balance the prevalence of covariates in the
 simulated sets, thus allowing for more diverse purpose of use in
 similar researches.
 
-The package provides separate functions for both parametric and non-parametric step in the simulation(\Rfunction{simData, simTime}), as well as one driver function to complete the whole process(\Rfunction{simBootstrap}). It supports both \Rclass{ExpressionSets} and \Rclass{SummarizedExperiment} object and the examples below will demonstrate how to use the functions for both these types respectively. 
+The package provides separate functions for both parametric and non-parametric step in the simulation(\Rfunction{simData, simTime}), as well as one driver function to complete the whole process(\Rfunction{simBootstrap}). It supports both \Rclass{ExpressionSets} and \Rclass{RangedSummarizedExperiment} objects and the examples below will demonstrate how to use the functions for both these types respectively. 
 
-Examples in this vignette uses \Rclass{ExpressionSets} from \Biocexptpkg{curatedOvarianData} \cite{Ganzfried2013} and \Rclass{SummarizedExperiment} from \Biocexptpkg{parathyroidSE} in \Bioconductor{}. Users who are not familiar with this two types of object could refer to the corresponding manuals for more information.
+Examples in this vignette uses \Rclass{ExpressionSets} from \Biocexptpkg{curatedOvarianData} \cite{Ganzfried2013} and \Rclass{RangedSummarizedExperiment} from \Biocexptpkg{parathyroidSE} in \Bioconductor{}. Users who are not familiar with this two types of object could refer to the corresponding manuals for more information.
 
 \subsection{Simulation on \Rclass{ExpressionSets}}
 \subsubsection{non-parametric bootstrap}
@@ -119,7 +119,7 @@ in phenoData(eset):
 cleanEsets <- function(obj, keep.common.only=TRUE, meta.required=NULL){
     if(keep.common.only){
         intersect.features <- Reduce(intersect, lapply(obj, featureNames))
-        for (i in 1:length(obj))
+        for (i in seq_along(obj))
             obj[[i]] <- obj[[i]][intersect.features, ]
     }
     if(!is.null(meta.required)){
@@ -165,7 +165,7 @@ The output includes another list of the simulated data sets.  Elements of this l
 
 \begin{itemize}
 \item \Robject{obj}: the simulated data, as a list of
-  \Rclass{ExpressionSet} or \Rclass{SummarizedExperiment} objects.
+  \Rclass{ExpressionSet} or \Rclass{RangedSummarizedExperiment} objects.
 \item \Robject{setsID} and \Robject{indices}: these indicate original
   set and patient labels selected in the simulation process, making 
   it easy to keep track of the data. 
@@ -285,7 +285,7 @@ Then we use this big merged ExpressionSet to fit a parametric model of
 survival that will be used as the ``true'' model:
 <<echo=TRUE,results=hide>>=
 lp.index <- c()
-for(i in 1:length(esets)){
+for(i in seq_along(esets)){
   lp.index <- c(lp.index, rep(i, length(y.vars[[i]][, 1])))
 }
   
@@ -293,7 +293,7 @@ truemod <- getTrueModel(list(whole_eset), list(all.yvars), parstep=100)
 
 simmodels <- simData(esets, 150, y.vars)
 beta <- grid <- survH <- censH <- lp <- list()
-for(listid in 1:length(esets)){
+for(listid in seq_along(esets)){
   beta[[listid]] <- truemod$beta[[1]]
   grid[[listid]] <- truemod$grid[[1]]
   survH[[listid]] <- truemod$survH[[1]]
@@ -314,7 +314,7 @@ and \Rclass{data.frame} objects for additional flexibility.
 
 \subsection{Simulation on \Rclass{SummarizedExpreriment}}
 
-Simulation over \Rclass{SummarizedExperiment} is similar to that over
+Simulation over \Rclass{RangedSummarizedExperiment} is similar to that over
 \Rclass{ExpressionSets}. So we will illustrate that the
 \Rpackage{simulatorZ} is suitable for simulating from one orginal set
 as well. First, we use \Biocexptpkg{parathysoidSE} package to obtain a
@@ -331,7 +331,7 @@ Enclose \Robject{parathyroidGenesSE} in a list for compatibility with
 <<echo=TRUE>>=
 sim.sets <- simData(list(parathyroidGenesSE), 100)
 names(sim.sets)
-sim.sets$obj[[1]]   #The simulated SummarizedExperiment
+sim.sets$obj[[1]]   #The simulated RangedSummarizedExperiment
 @
 
 In this simple example the simulated object is simply a bootstrap sample (with replacement) of the original object.  In the original object, ``run'' is unique:
@@ -443,7 +443,7 @@ for(b in 1:20){
                          y.vars=sim2.esets$y.vars.list, fold=4,
                          trainingFun=plusMinus)
   sum.cv <- 0
-  for(i in 1:length(esets)){
+  for(i in seq_along(esets)){
     sum.cv <- sum.cv + Z.list[[b]][i, i]
   }
   CV[b] <- sum.cv / length(esets)

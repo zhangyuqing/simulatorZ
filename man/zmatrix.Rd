@@ -5,7 +5,7 @@
 \usage{zmatrix(obj, y.vars, fold, trainingFun = masomenos, cvFun = funCV, 
     cvSubsetFun = cvSubsets)}
 \arguments{
-  \item{obj}{a list of ExpressionSet, matrix or SummarizedExperiment objects, if its 
+  \item{obj}{a list of ExpressionSet, matrix or RangedSummarizedExperiment objects, if its 
 elements are matrices, columns represent samples }
   \item{y.vars}{a list of response variables, all the response variables shold be
 matrix, data.frame(with 2 columns) or Surv object}
@@ -40,7 +40,7 @@ y.list <- lapply(esets.list, function(eset){
   time <- eset$days_to_death
   cens.chr <- eset$vital_status
   cens <- c()
-  for(i in 1:length(cens.chr)){
+  for(i in seq_along(cens.chr)){
     if(cens.chr[i] == "living") cens[i] <- 1
     else cens[i] <- 0
   }
@@ -62,7 +62,7 @@ X.list <- lapply(esets.list, function(eset){
 }) 
 z <- zmatrix(X.list, y.list, 3)
 
-# support SummarizedExperiment
+# support RangedSummarizedExperiment
 nrows <- 200; ncols <- 6
 counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
 rowRanges <- GRanges(rep(c("chr1", "chr2"), c(50, 150)),

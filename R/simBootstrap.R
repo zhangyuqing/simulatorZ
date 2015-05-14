@@ -2,7 +2,7 @@ simBootstrap <- structure(function
 ### the driver function to perform three-step bootstrap resampling 
 ### to get independent genomic data sets
 (obj,
- ### a list of ExpressionSet, matrix or SummarizedExperiment  
+ ### a list of ExpressionSet, matrix or RangedSummarizedExperiment  
  y.vars,
  ### a list of reponse variables, elements can be class Surv, matrix or data.frame
  n.samples,
@@ -59,7 +59,7 @@ simBootstrap <- structure(function
     time <- eset$days_to_death
     cens.chr <- eset$vital_status
     cens <- c()
-    for(i in 1:length(cens.chr)){
+    for(i in seq_along(cens.chr)){
       if(cens.chr[i] == "living") cens[i] <- 1
       else cens[i] <- 0
     }
@@ -74,7 +74,7 @@ simBootstrap <- structure(function
   simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100,
                             balance.variables="tumorstage")
   
-  ## Support SummarizedExperiment
+  ## Support RangedSummarizedExperiment
   nrows <- 200; ncols <- 10
   counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
   rowRanges <- GRanges(rep(c("chr1", "chr2"), c(50, 150)),

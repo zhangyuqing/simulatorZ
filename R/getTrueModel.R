@@ -7,32 +7,23 @@ getTrueModel <- structure(function
 ### survH=cumulative hazard for survival times distribution
 ### censH=cumulative hazard for censoring times distribution
 (obj,
- ### a list of ExpressionSets, matrix or SummarizedExperiment
+ ### a list of ExpressionSets, matrix or RangedSummarizedExperiment
  y.vars,
  ### a list of response variables, Surv, matrix or data.frame object
  parstep 
  ### number of steps in CoxBoost
 ){
   Beta <- grid <- survH <- censH <- result <- lp <- list()
-  for(i in 1:length(obj)){
+  for(i in seq_along(obj)){
     print(i)
     ### PART 1: get beta
     time <- y.vars[[i]][, 1]
     time <- as.numeric(as.character(time))
     status <- y.vars[[i]][, 2]
     status <- as.numeric(as.character(status))
-    
-    if(class(obj[[1]])=="ExpressionSet"){
-      X <- t(exprs(obj[[i]]))
-    }      
-    else if(class(obj[[1]])=="matrix"){
-      X <- t(obj[[i]])
-    }  
-    else if(class(obj[[1]])=="SummarizedExperiment"){
-      X <- t(assay(obj[[i]]))
-    }
-      
-      
+
+    X <- t(getMatrix(obj[[i]])) 
+ 
     cbfit <- CoxBoost(time=time, status=status, x=X, 
                       stepno=parstep, standardize=FALSE)
     
@@ -40,13 +31,8 @@ getTrueModel <- structure(function
     ### PART 2: get grid, suvH, censH
     ### Survival time ==> dmfs.cens=1, Censoring time ==> dmfs.cens=0
     ### get survH, censH, grid    
-    
-    if(class(obj[[1]])=="ExpressionSet")
-      X <- exprs(obj[[i]])
-    else if(class(obj[[1]])=="matrix")
-      X <- obj[[i]]
-    else if(class(obj[[1]])=="SummarizedExperiment")
-      X <- assay(obj[[i]])
+
+    X <- getMatrix(obj[[i]])
     
     lp[[i]] <- as.numeric(Beta[[i]] %*% X)  ## Calculate linear predictor
     grid[[i]] <- seq(0, max(time), by = 1)
@@ -84,7 +70,7 @@ getTrueModel <- structure(function
     time <- eset$days_to_death
     cens.chr <- eset$vital_status
     cens <- c()
-    for(i in 1:length(cens.chr)){
+    for(i in seq_along(cens.chr)){
       if(cens.chr[i] == "living") cens[i] <- 1
       else cens[i] <- 0
     }

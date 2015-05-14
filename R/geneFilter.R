@@ -4,8 +4,8 @@ geneFilter <- structure(function
 ## Gabrielson, E., Cross-study validation and combined analysis of gene 
 ## expression microarray data. Biostatistics. 2008 Apr;9(2):333-354.
 (obj,
- ### a list of ExpressionSet, matrix or SummarizedExperiment objects. If its elements are matrices,
- ### columns represent samples, rows represent genes
+ ### a list of ExpressionSet, matrix or RangedSummarizedExperiment objects. If
+ ### its elements are matrices, columns represent samples, rows represent genes
  cor.cutoff=0.5 
  ### the cutoff threshold for filtering genes. Only when the integrative correlation
  ### between every pair of sets is larger than the cutoff value, will the gene 
@@ -15,54 +15,33 @@ geneFilter <- structure(function
   qua.id <- list()
   geneid <- c()
   
-  for(i in 1:length(obj)){
-    for(j in i:length(obj)){
+  for(i in seq_along(obj)){
+    for(j in seq_along(obj)){
       if(i!=j){
         print(paste(i, j, sep="--"))
-        if(class(obj[[1]])=="ExpressionSet"){
-          Xi <- t(exprs(obj[[i]]))
-          Xj <- t(exprs(obj[[j]]))
-        }    
-        else if(class(obj[[1]])=="matrix"){
-          Xi <- t(obj[[i]])
-          Xj <- t(obj[[j]])
-        }
-        else if(class(obj[[1]])=="SummarizedExperiment"){
-          Xi <- t(assay(obj[[i]]))
-          Xj <- t(assay(obj[[j]]))
-        }   
+        Xi <- t(getMatrix(obj[[i]]))
+        Xj <- t(getMatrix(obj[[j]]))
         m1 <- cor(Xi)
         m2 <- cor(Xj)
         int.score <- c()
-        for(k in 1:ncol(m1)){
+        for(k in seq_len(ncol(m1))){
           int.score[k] <- cor(m1[, k], m2[, k])
         }
         qua.id[[index]] <- as.numeric(which(int.score > cor.cutoff))
         index <- index + 1
-        geneid <- 1:ncol(Xi)
+        geneid <- seq_len(ncol(Xi))
         rm(Xi, Xj, m1, m2)
       }      
     }
   }
   
-  if(length(obj)==1){
-    if(class(obj[[1]])=="ExpressionSet"){
-      X <- t(exprs(obj[[1]]))
-      X <- t(exprs(obj[[1]]))
-    }    
-    else if(class(obj[[1]])=="matrix"){
-      X <- t(obj[[1]])
-      X <- t(obj[[1]])
-    }
-    else if(class(obj[[1]])=="SummarizedExperiment"){
-      X <- t(assay(obj[[1]]))
-      X <- t(assay(obj[[1]]))
-    }
-    geneid <- qua.id[[1]] <- 1:ncol(X)
+  if(length(obj)==1) {
+    X <- t(getMatrix(obj[[1]]))
+    geneid <- qua.id[[1]] <- seq_len(ncol(X))
     rm(X)
   }
   
-  for(k in 1:length(qua.id)){
+  for(k in seq_along(qua.id)){
     geneid <- intersect(geneid, qua.id[[k]])
   }
     
@@ -71,8 +50,8 @@ geneFilter <- structure(function
   })
   
   return(new.obj)
-  ### returns a list of ExpressionSets matrix or SummarizedExperiment objects
-  ### with genes filtered 
+  ### returns a list of ExpressionSets matrix or RangedSummarizedExperiment
+  ### objects with genes filtered 
 },ex=function(){
   set.seed(8)
   library(curatedOvarianData)
@@ -99,7 +78,7 @@ geneFilter <- structure(function
   result.set <- geneFilter(X.list, 0)
   dim(result.set[[1]])
   
-  ## Support SummarizedExperiment
+  ## Support RangedSummarizedExperiment
   nrows <- 200; ncols <- 6
   counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
   rowRanges <- GRanges(rep(c("chr1", "chr2"), c(50, 150)),

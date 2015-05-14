@@ -1,39 +1,22 @@
 cvSubsets <- structure(function
 ### To generate a list of subsets(indices of observations) from one set
 (obj,
-### a ExpressionSet, matrix or SummarizedExperiment object. If it is a matrix,
-### columns represent samples
+### a ExpressionSet, matrix or RangedSummarizedExperiment object. If it is a
+### matrix,columns represent samples
 fold
 ### the number of folds in cross validation. 
 ### Number of observations in the set does not need to be a multiple of fold
 ){
   setindex <- list()
-  if(class(obj)=="ExpressionSet")
-    seq <- 1:ncol(exprs(obj))
-  else if(class(obj)=="matrix")
-    seq <- 1:ncol(obj)
-  else if(class(obj)=="SummarizedExperiment")
-    seq <- 1:ncol(assay(obj))
-  else stop("Wrong class of obj!")
-    
-  n.subset <- round(length(seq) / fold)
+  obj <- getMatrix(obj)
+  n.subset <- round(ncol(obj) / fold)
   ## divide into 4 subsets randomly   
   for(i in 1:(fold-1)){
-    if(class(obj)=="ExpressionSet")
-      seq <- 1:ncol(exprs(obj))
-    else if(class(obj)=="matrix")
-      seq <- 1:ncol(obj)
-    else if(class(obj)=="SummarizedExperiment")
-      seq <- 1:ncol(assay(obj))
+    seq <- seq_len(ncol(obj))
     if(length(do.call(c, setindex)) > 0) seq <- seq[-do.call(c, setindex)]
     setindex[[i]] <- sample(seq, n.subset, replace=FALSE)  
   }
-  if(class(obj)=="ExpressionSet")
-    seq <- 1:ncol(exprs(obj))
-  else if(class(obj)=="matrix")
-    seq <- 1:ncol(obj)
-  else if(class(obj)=="SummarizedExperiment")
-    seq <- 1:ncol(assay(obj))
+  seq <- seq_len(ncol(obj))
   setindex[[fold]] <- seq[-do.call(c, setindex)]
   return(setindex)
   ### returns the list of indices of subsets

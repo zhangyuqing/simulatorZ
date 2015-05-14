@@ -4,7 +4,7 @@ simTime <- structure(function
 (simmodels,
  ### a list in the form of the return value of simData()
  ### which consists of three lists:
- ### obj: a list of ExpressionSets, matrics or SummarizedExperiments
+ ### obj: a list of ExpressionSets, matrices or RangedSummarizedExperiments
  ### setsID: a list of set labels indicating which original set the simulated one is from
  ### indices: a list of patient labels to tell which patient in the original set is drawn
  result
@@ -17,7 +17,7 @@ simTime <- structure(function
  ### lp: true linear predictors
 ){  
   y.vars <- list()
-  for(i in 1:length(simmodels$obj)){
+  for(i in seq_along(simmodels$obj)){
     print(i)
     setID <- simmodels$setsID[i]
     time <- simmodels$y.vars[[setID]][, 1]
@@ -33,15 +33,9 @@ simTime <- structure(function
     ## the ith resampled set is from names(esets)[i] originally(refer to simData())
     TIME <- CENS <- c()
     newTIME <- newCENS <- c()
-    
-    if(class(simmodels$obj[[1]])=="ExpressionSet")
-      num.sam <- ncol(exprs(simmodels$obj[[i]]))
-    else if(class(simmodels$obj[[1]])=="matrix")
-      num.sam <- ncol(simmodels$obj[[i]])
-    else if(class(simmodels$obj[[1]])=="SummarizedExperiment")
-      num.sam <- ncol(assay(simmodels$obj[[i]]))
-    
-    for(j in 1:num.sam) {
+
+    num.sam <- ncol(getMatrix(simmodels$obj[[i]])) 
+    for(j in seq_len(num.sam)) {
       ## generate the survival time 
       u1 <- runif(1, min = 0, max = 1)
       z1 <- (-log(u1, base=exp(1))) * (exp(-lp[j])) 
@@ -77,7 +71,7 @@ simTime <- structure(function
     time <- eset$days_to_death
     cens.chr <- eset$vital_status
     cens <- c()
-    for(i in 1:length(cens.chr)){
+    for(i in seq_along(cens.chr)){
       if(cens.chr[i] == "living") cens[i] <- 1
       else cens[i] <- 0
     }
@@ -96,10 +90,10 @@ simTime <- structure(function
   # it also supports performing only the parametrc bootstrap step on a list of expressionsets
   # but you need to construct the parameter by scratch
   res <- getTrueModel(esets.list, y.list, 100)
-  setsID <- 1:length(esets.list)
+  setsID <- seq_along(esets.list)
   indices <- list()
   for(i in setsID){
-    indices[[i]] <- 1:length(sampleNames(esets.list[[i]])) 
+    indices[[i]] <- seq_along(sampleNames(esets.list[[i]])) 
   }
   simmodels <- list(obj=esets.list, y.vars=y.list, indices=indices, setsID=setsID)
   

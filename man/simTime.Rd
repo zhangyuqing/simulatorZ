@@ -7,7 +7,7 @@ and cumulative hazard to simulate survival and censoring.}
 \arguments{
   \item{simmodels}{a list in the form of the return value of simData()
 which consists of three lists:
-obj: a list of ExpressionSets, matrics or SummarizedExperiments
+obj: a list of ExpressionSets, matrices or RangedSummarizedExperiments
 setsID: a list of set labels indicating which original set the simulated one is from
 indices: a list of patient labels to tell which patient in the original set is drawn}
   \item{result}{a list in the form of return of getTrueModel()
@@ -43,7 +43,7 @@ y.list <- lapply(esets.list, function(eset){
   time <- eset$days_to_death
   cens.chr <- eset$vital_status
   cens <- c()
-  for(i in 1:length(cens.chr)){
+  for(i in seq_along(cens.chr)){
     if(cens.chr[i] == "living") cens[i] <- 1
     else cens[i] <- 0
   }
@@ -62,10 +62,10 @@ simmodels <- simTime(simmodels=simmodels, result=res)
 # it also supports performing only the parametrc bootstrap step on a list of expressionsets
 # but you need to construct the parameter by scratch
 res <- getTrueModel(esets.list, y.list, 100)
-setsID <- 1:length(esets.list)
+setsID <- seq_along(esets.list)
 indices <- list()
 for(i in setsID){
-  indices[[i]] <- 1:length(sampleNames(esets.list[[i]])) 
+  indices[[i]] <- seq_along(sampleNames(esets.list[[i]])) 
 }
 simmodels <- list(obj=esets.list, y.vars=y.list, indices=indices, setsID=setsID)
 

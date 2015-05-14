@@ -4,14 +4,14 @@
 \description{the function to filter genes by Intergrative Correlation}
 \usage{geneFilter(obj, cor.cutoff = 0.5)}
 \arguments{
-  \item{obj}{a list of ExpressionSet, matrix or SummarizedExperiment objects. If its elements are matrices,
+  \item{obj}{a list of ExpressionSet, matrix or RangedSummarizedExperiment objects. If its elements are matrices,
 columns represent samples, rows represent genes}
   \item{cor.cutoff}{the cutoff threshold for filtering genes. Only when the integrative correlation
 between every pair of sets is larger than the cutoff value, will the gene 
 be selected.}
 }
 
-\value{returns a list of ExpressionSets matrix or SummarizedExperiment objects
+\value{returns a list of ExpressionSets matrix or RangedSummarizedExperiment objects
 with genes filtered }
 \references{Garrett-Mayer, E., Parmigiani, G., Zhong, X., Cope, L., 
 Gabrielson, E., Cross-study validation and combined analysis of gene 
@@ -47,7 +47,7 @@ X.list <- lapply(esets.list, function(eset){
 result.set <- geneFilter(X.list, 0)
 dim(result.set[[1]])
 
-## Support SummarizedExperiment
+## Support RangedSummarizedExperiment
 nrows <- 200; ncols <- 6
 counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
 rowRanges <- GRanges(rep(c("chr1", "chr2"), c(50, 150)),

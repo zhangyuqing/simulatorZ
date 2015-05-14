@@ -10,7 +10,7 @@ survH=cumulative hazard for survival times distribution
 censH=cumulative hazard for censoring times distribution}
 \usage{getTrueModel(obj, y.vars, parstep)}
 \arguments{
-  \item{obj}{a list of ExpressionSets, matrix or SummarizedExperiment}
+  \item{obj}{a list of ExpressionSets, matrix or RangedSummarizedExperiment}
   \item{y.vars}{a list of response variables, Surv, matrix or data.frame object}
   \item{parstep}{number of steps in CoxBoost}
 }
@@ -44,7 +44,7 @@ y.list <- lapply(esets.list, function(eset){
   time <- eset$days_to_death
   cens.chr <- eset$vital_status
   cens <- c()
-  for(i in 1:length(cens.chr)){
+  for(i in seq_along(cens.chr)){
     if(cens.chr[i] == "living") cens[i] <- 1
     else cens[i] <- 0
   }

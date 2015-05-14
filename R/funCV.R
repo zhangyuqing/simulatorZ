@@ -1,8 +1,8 @@
 funCV <- structure(function
 ### Cross validation function
 (obj,
- ### a ExpressionSet, matrix or SummarizedExperiment object. If it is a matrix,
- ### columns represent samples 
+ ### a ExpressionSet, matrix or RangedSummarizedExperiment object. If it is a
+ ### matrix, columns represent samples 
  fold,  
  ### the number of folds in cross validation
  y.var,
@@ -12,28 +12,14 @@ funCV <- structure(function
  funCvSubset=cvSubsets
  ### function to divide one Expression Set into subsets for cross validation
 ){
-  setindex <- funCvSubset(obj, fold) 
+  setindex <- funCvSubset(obj, fold)
+  obj <- getMatrix(obj)
   ## cross validation
   z <- numeric(fold)
   for(i in 1:fold){
     print(paste("fold = ", i, sep=""))
-    testeset <- obj[, setindex[[i]]]
-    traineset <- obj[, -(setindex[[i]])]
-    
-    if(class(obj)=="ExpressionSet"){
-      testX <- t(exprs(testeset))
-      trainX <- t(exprs(traineset))
-    }
-    else if(class(obj)=="matrix"){
-      testX <- t(testeset)
-      trainX <- t(traineset)
-    }
-    else if(class(obj)=="SummarizedExperiment"){
-      testX <- t(assay(testeset))
-      trainX <- t(assay(traineset))
-    }
-    else stop("Wrong class of obj!")
-          
+    testX <- t(obj[, setindex[[i]]])
+    trainX <- t(obj[, -(setindex[[i]])])
     testY <- y.var[setindex[[i]], ]
     testY[, 1] <- as.numeric(as.character(testY[, 1]))
     testY[, 2] <- as.numeric(as.character(testY[, 2]))
@@ -59,7 +45,7 @@ funCV <- structure(function
   time <- eset$days_to_death
   cens.chr <- eset$vital_status
   cens <- c()
-  for(i in 1:length(cens.chr)){
+  for(i in seq_along(cens.chr)){
     if(cens.chr=="living") cens[i] <- 1
     else cens[i] <- 0
   }

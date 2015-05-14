@@ -4,7 +4,7 @@
 \description{Cross validation function}
 \usage{funCV(obj, fold, y.var, trainFun = masomenos, funCvSubset = cvSubsets)}
 \arguments{
-  \item{obj}{a ExpressionSet, matrix or SummarizedExperiment object. If it is a matrix,
+  \item{obj}{a ExpressionSet, matrix or RangedSummarizedExperiment object. If it is a matrix,
 columns represent samples }
   \item{fold}{the number of folds in cross validation}
   \item{y.var}{response variable, matrix, data.frame(with 2 columns) or Surv object}
@@ -28,7 +28,7 @@ eset <- E.MTAB.386_eset[1:100, 1:30]
 time <- eset$days_to_death
 cens.chr <- eset$vital_status
 cens <- c()
-for(i in 1:length(cens.chr)){
+for(i in seq_along(cens.chr)){
   if(cens.chr=="living") cens[i] <- 1
   else cens[i] <- 0
 }

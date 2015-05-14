@@ -3,8 +3,8 @@ simData <- structure(function
 ### on a list of (original) data sets, both on set level and patient level,
 ### in order to simulate independent genomic sets. 
 (obj,
- ### a list of ExpressionSets, matrics or SummarizedExperiments. If elements are 
- ### matricse, columns represent samples
+ ### a list of ExpressionSets, matrices or RangedSummarizedExperiments. If
+ ### elements are matrices, columns represent samples
  n.samples,
  ### an integer indicating how many samples should be resampled from each set
  y.vars=list(),
@@ -27,15 +27,15 @@ simData <- structure(function
     stop("Wrong type.")
   }    
   else if(type == "one-step"){
-    setsID <- 1:length(obj)
+    setsID <- seq_along(obj)
   }    
   else{
     prob.set <- rep((1/length(obj)), times=length(obj))
-    setsID <- sample(1:length(obj), prob=prob.set, replace=TRUE)  # labels of data sets
+    setsID <- sample(length(obj), prob=prob.set, replace=TRUE)  # labels of data sets
   }  
   print(setsID) 
   
-  if(class(obj[[1]])=="ExpressionSet"){
+  if(is(obj[[1]], "ExpressionSet")){
     #### Step.2 Calculate the joint probability distribution  
     ## rbinding all covariates data  
     covariates.list <- lapply(obj, function(obj.ele){
@@ -66,13 +66,13 @@ simData <- structure(function
   
   
   if(!is.null(balance.variables)){
-    if(class(obj[[1]])!="ExpressionSet"){
+    if(!is(obj[[1]], "ExpressionSet")){
       stop("Cannot balance covariates for type other than ExpressionSet!")
     }
     else{
       print(paste("covariate: ", balance.variables, sep=""))
-      for(i in 1:length(obj)){        
-        sampleind[[i]] <- sample(1:length(sampleNames(obj[[setsID[i]]])), n.samples, replace=TRUE, prob=probs.list[[setsID[i]]])
+      for(i in seq_along(obj)){        
+        sampleind[[i]] <- sample(length(sampleNames(obj[[setsID[i]]])), n.samples, replace=TRUE, prob=probs.list[[setsID[i]]])
         samplesets[[i]] <- obj[[setsID[i]]][, sampleind[[i]]]
         if(length(y.vars)!=0){
           new.y.vars[[i]] <- y.vars[[setsID[i]]][sampleind[[i]], ]
@@ -82,14 +82,9 @@ simData <- structure(function
   }    
   else {
     print("covariate: NULL")
-    for(i in 1:length(obj)){
-      if(class(obj[[1]])=="ExpressionSet")
-        num.sam <- ncol(exprs(obj[[setsID[i]]]))
-      else if(class(obj[[1]])=="matrix")
-        num.sam <- ncol(obj[[setsID[i]]])
-      else if(class(obj[[1]])=="SummarizedExperiment")
-        num.sam <- ncol(assay(obj[[setsID[i]]]))
-      sampleind[[i]] <- sample(1:num.sam, n.samples, replace=TRUE)
+    for(i in seq_along(obj)){
+      num.sam <- ncol(getMatrix(obj[[setsID[i]]]))
+      sampleind[[i]] <- sample(num.sam, n.samples, replace=TRUE)
       samplesets[[i]] <- obj[[setsID[i]]][, sampleind[[i]]]
       if(length(y.vars)!=0){
         new.y.vars[[i]] <- y.vars[[setsID[i]]][sampleind[[i]], ]
@@ -147,7 +142,7 @@ simData <- structure(function
   })
   simmodels <- simData(X.list, 20, type="two-steps")
   
-  ## Support SummarizedExperiment
+  ## Support RangedSummarizedExperiment
   nrows <- 200; ncols <- 6
   counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
   rowRanges <- GRanges(rep(c("chr1", "chr2"), c(50, 150)),

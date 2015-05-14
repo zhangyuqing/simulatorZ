@@ -25,7 +25,7 @@ test_simData <- function(){
     }
   }) 
   freq.sim <- freq.origin <- c()
-  for(i in 1:length(covariates.sim)){
+  for(i in seq_along(covariates.sim)){
     id <- match(covariates.sim[[i]], covariates.originall)
     freq.sim <- table(covariates.sim[[i]]) / sum(table(covariates.sim[[i]]))
     freq.origin <- table(covariates.originall[id]) / sum(table(covariates.originall[id]))    

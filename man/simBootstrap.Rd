@@ -7,7 +7,7 @@ to get independent genomic data sets}
     balance.variables = NULL, funSimData = simData, funTrueModel = getTrueModel, 
     funSurvTime = simTime)}
 \arguments{
-  \item{obj}{a list of ExpressionSet, matrix or SummarizedExperiment  }
+  \item{obj}{a list of ExpressionSet, matrix or RangedSummarizedExperiment  }
   \item{y.vars}{a list of reponse variables, elements can be class Surv, matrix or data.frame}
   \item{n.samples}{number of samples to resample in each set}
   \item{parstep}{step number to fit CoxBoost}
@@ -53,7 +53,7 @@ y.list <- lapply(esets.list, function(eset){
   time <- eset$days_to_death
   cens.chr <- eset$vital_status
   cens <- c()
-  for(i in 1:length(cens.chr)){
+  for(i in seq_along(cens.chr)){
     if(cens.chr[i] == "living") cens[i] <- 1
     else cens[i] <- 0
   }
@@ -68,7 +68,7 @@ simmodels$obj.list[[1]]
 simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100,
                           balance.variables="tumorstage")
 
-## Support SummarizedExperiment
+## Support RangedSummarizedExperiment
 nrows <- 200; ncols <- 10
 counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
 rowRanges <- GRanges(rep(c("chr1", "chr2"), c(50, 150)),

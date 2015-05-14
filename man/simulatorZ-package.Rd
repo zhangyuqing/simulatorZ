@@ -5,7 +5,7 @@
 \title{Simulator for Collections of Independent Genomic Data Sets}
 \description{simulatorZ is a package intended primarily to simulate collections of
 independent genomic data sets, as well as performing training and validation with
-predicting algorithms. It supports ExpressionSets and SummarizedExperiment objects.}
+predicting algorithms. It supports ExpressionSets and RangedSummarizedExperiment objects.}
 \details{
 \tabular{ll}{Package: \tab simulatorZ\cr
 Type: \tab Package\cr
