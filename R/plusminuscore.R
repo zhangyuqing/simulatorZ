@@ -1,46 +1,49 @@
-### filename: plusminuscore.r
-### Title: Backend for plusMinusSurv.r
-###
-### Author: Levi Waldron
-### email: <lwaldron.research@gmail.com>
-### date of creation: Mar 21, 2011
-###
-##### Brief description:
-###
-###  modeltype="plusminus": returns coefficients of a simple
-###  regression model with coefficients of +/- 1, optionally scaled by
-###  the standard deviation of the variables.
-###
-###  modeltype="compoundcovariate": also supports the Compound Covariate method,
-###  where coefficients
-###  are equal to the univariate Cox regression coefficient.
-###
-###  modeltype="voting": Each feature receives one vote for positive or negative 
-###	risk.
-###  
-###  modeltype="positiveriskvoting": Each feature can only vote for positive 
-###	risk (poor prognosis) or abstain.
-###  
-###  modeltype="negativeriskvoting": Each feature can only vote for negative 
-###	risk (good prognosis) or abstain.
-###  
-###  **************************************************************************
-###  
-
 plusMinus <- structure(function
 ### function for plusMinus algorithm
-##references<< Zhao, S., Huttenhower, G. P. C., and Waldron, L. (2013). Mas-o-menos:
-## a simple sign averaging method for discrimination in genomic data analysis.
-## http://biostats.bepress.com/harvardbiostat/paper158/. Accessed: 2013-10-24.
+## filename: plusminuscore.r
+## Title: Backend for plusMinusSurv.r
+##
+## Author: Levi Waldron
+## email: <lwaldron.research@gmail.com>
+## date of creation: Mar 21, 2011
+##
+## Brief description:
+##
+##  modeltype="plusminus": returns coefficients of a simple
+##  regression model with coefficients of +/- 1, optionally scaled by
+##  the standard deviation of the variables.
+##
+##  modeltype="compoundcovariate": also supports the Compound Covariate method,
+##  where coefficients
+##  are equal to the univariate Cox regression coefficient.
+##
+##  modeltype="voting": Each feature receives one vote for positive or negative 
+##  risk.
+##  
+##  modeltype="positiveriskvoting": Each feature can only vote for positive 
+##	risk (poor prognosis) or abstain.
+##  
+##  modeltype="negativeriskvoting": Each feature can only vote for negative 
+##	risk (good prognosis) or abstain. 
 ( X, 
 ### gene expression matrix
 y, 
 ### response variables
-lambda=NULL, tuningpar="nfeatures",
-                       standardize=FALSE, directionality="posneg",
-                       ties.method="average",
-                       votingthresholdquantile=0.5, modeltype="plusminus")
-{
+lambda=NULL, 
+### lambda
+tuningpar="nfeatures",
+### tuning parameter
+standardize=FALSE, 
+### standardize or not
+directionality="posneg",
+### directionality                       
+ties.method="average",
+### ties.method                      
+votingthresholdquantile=0.5, 
+### votingthresholdquantile
+modeltype="plusminus"
+### modeltype
+){
   supported.modeltypes <- c("plusminus", "compoundcovariate", "tscore", 
                             "voting", "positiveriskvoting", "negativeriskvoting")
   if(!modeltype %in% supported.modeltypes)

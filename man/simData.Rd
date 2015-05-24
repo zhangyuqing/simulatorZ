@@ -7,8 +7,8 @@ in order to simulate independent genomic sets. }
 \usage{simData(obj, n.samples, y.vars = list(), type = "two-steps", 
     balance.variables = NULL)}
 \arguments{
-  \item{obj}{a list of ExpressionSets, matrices or RangedSummarizedExperiments. If elements are 
-matrices, columns represent samples}
+  \item{obj}{a list of ExpressionSets, matrices or RangedSummarizedExperiments. If
+elements are matrices, columns represent samples}
   \item{n.samples}{an integer indicating how many samples should be resampled from each set}
   \item{y.vars}{a list of response variables, can be Surv object, or matrix or data.frame
 with two columns}
@@ -28,7 +28,7 @@ prob.desired and prob.real are only useful when balance.varaibles is set.
 prob.desired shows overall distrubition of the specified covariate. prob.list
 shows the sampling probability in each set after balancing}
 
-\author{Yuqing Zhang, Levi Waldron}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 

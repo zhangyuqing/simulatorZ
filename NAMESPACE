@@ -20,7 +20,7 @@ export(simData)
 export(simTime)
 export(zmatrix)
 export(rowCoxTests)
-
+export(getMatrix)
 
 
 

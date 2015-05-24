@@ -2,18 +2,19 @@
 \alias{masomenos}
 \title{masomenos}
 \description{function for Mas-o-menos algorithm}
-\usage{masomenos(X, y)}
+\usage{masomenos(X, y, option = "fast", ...)}
 \arguments{
-  \item{X}{gene expression matrix, with rows corresponding to patients and columns corresponding to genes }
-  \item{y}{response variable, a data.frame, matrix or Surv object, with the first column as time to event and the second column 
-censoring status }
+  \item{X}{matrix with rows corresponding to subjects and columns to features resp}
+  \item{y}{response variable, a data.frame, matrix, or Surv object: c(time, event)}
+  \item{option}{whether to use C or R code to fit the marginal Cox models}
+  \item{\dots}{other arguments}
 }
 
-\value{return betas}
+\value{return the coefficients}
 \references{Zhao, S., Huttenhower, G. P. C., and Waldron, L. (2013). Mas-o-menos:
 a simple sign averaging method for discrimination in genomic data analysis.
 http://biostats.bepress.com/harvardbiostat/paper158/. Accessed: 2013-10-24.}
-\author{Yuqing Zhang}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 

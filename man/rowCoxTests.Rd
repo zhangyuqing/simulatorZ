@@ -27,7 +27,7 @@ something goes wrong with the "fast" method.}
 coefficients, p.value =
 Wald Test p-values.  Rows correspond to the rows of X.}
 
-\author{Christoph Bernau}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 

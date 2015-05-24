@@ -4,8 +4,8 @@
 \description{Cross validation function}
 \usage{funCV(obj, fold, y.var, trainFun = masomenos, funCvSubset = cvSubsets)}
 \arguments{
-  \item{obj}{a ExpressionSet, matrix or RangedSummarizedExperiment object. If it is a matrix,
-columns represent samples }
+  \item{obj}{a ExpressionSet, matrix or RangedSummarizedExperiment object. If it is a
+matrix, columns represent samples }
   \item{fold}{the number of folds in cross validation}
   \item{y.var}{response variable, matrix, data.frame(with 2 columns) or Surv object}
   \item{trainFun}{training function, which takes gene expression matrix X and response variable y as input, the coefficients as output }
@@ -14,7 +14,7 @@ columns represent samples }
 
 \value{returns the c statistics of cross validation(CV)}
 
-\author{Yuqing Zhang}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 

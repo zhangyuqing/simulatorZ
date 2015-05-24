@@ -5,8 +5,8 @@
 \usage{zmatrix(obj, y.vars, fold, trainingFun = masomenos, cvFun = funCV, 
     cvSubsetFun = cvSubsets)}
 \arguments{
-  \item{obj}{a list of ExpressionSet, matrix or RangedSummarizedExperiment objects, if its 
-elements are matrices, columns represent samples }
+  \item{obj}{a list of ExpressionSet, matrix or RangedSummarizedExperiment objects.
+If its elements are matrices, columns represent samples }
   \item{y.vars}{a list of response variables, all the response variables shold be
 matrix, data.frame(with 2 columns) or Surv object}
   \item{fold}{cvFun parameter, in this case passes to funCV()}

@@ -8,27 +8,18 @@
 \arguments{
   \item{X}{gene expression matrix}
   \item{y}{response variables}
-  \item{lambda}{
-}
-  \item{tuningpar}{
-}
-  \item{standardize}{
-}
-  \item{directionality}{
-}
-  \item{ties.method}{
-}
-  \item{votingthresholdquantile}{
-}
-  \item{modeltype}{
-}
+  \item{lambda}{lambda}
+  \item{tuningpar}{tuning parameter}
+  \item{standardize}{standardize or not}
+  \item{directionality}{directionality                       }
+  \item{ties.method}{ties.method                      }
+  \item{votingthresholdquantile}{votingthresholdquantile}
+  \item{modeltype}{modeltype}
 }
 
 \value{returns regression coefficients }
-\references{Zhao, S., Huttenhower, G. P. C., and Waldron, L. (2013). Mas-o-menos:
-a simple sign averaging method for discrimination in genomic data analysis.
-http://biostats.bepress.com/harvardbiostat/paper158/. Accessed: 2013-10-24.}
-\author{Levi Waldron}
+
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 

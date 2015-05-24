@@ -22,7 +22,7 @@ survH: cumulative hazard for survival times distribution
 censH: cumulative hazard for censoring times distribution
 lp: true linear predictors }
 
-\author{Yuqing Zhang, Christoph Bernau}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 
@@ -57,5 +57,6 @@ res1 <- getTrueModel(esets.list, y.list, 100)
 res2 <- getTrueModel(esets.list[1], y.list[1], 100)
 names(res2)
 res2$lp
-## note that y.list[1] cannot be replaced by y.list[[1]]
+## note that y.list[1] cannot be replaced by y.list[[1]]
+ 
 }

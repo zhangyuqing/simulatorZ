@@ -30,7 +30,7 @@ survH.list = list of cumulative survival hazard
 censH.list = list of cumulative censoring hazard
 grid.list = list of timeline grid corresponding to survH and censH respectivley}
 
-\author{Yuqing Zhang, Levi Waldron}
+\author{Yuqing Zhang, Christoph Bernau, Levi Waldron}
 
 
 
@@ -66,7 +66,7 @@ simmodels$obj.list[[1]]
 
 # balance covariates
 simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100,
-                          balance.variables="tumorstage")
+                          balance.variables="tumorstage")
 
 ## Support RangedSummarizedExperiment
 nrows <- 200; ncols <- 10
