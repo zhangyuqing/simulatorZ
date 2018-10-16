@@ -3,13 +3,14 @@
 \title{simTime}
 \description{simTime is a function to perform the parametric-bootstrap step, where we use the true coefficients
 and cumulative hazard to simulate survival and censoring.}
-\usage{simTime(simmodels, result)}
+\usage{simTime(simmodels, original.yvars, result)}
 \arguments{
   \item{simmodels}{a list in the form of the return value of simData()
 which consists of three lists:
 obj: a list of ExpressionSets, matrices or RangedSummarizedExperiments
 setsID: a list of set labels indicating which original set the simulated one is from
 indices: a list of patient labels to tell which patient in the original set is drawn}
+  \item{original.yvars}{response variable in the order of original sets(without sampling)}
   \item{result}{a list in the form of return of getTrueModel()
 which consists of five lists: 
 Beta: a list of coefficients obtained by 
@@ -28,13 +29,10 @@ lp: true linear predictors}
 
 \examples{
 library(curatedOvarianData)
-data(GSE17260_eset)
 data(E.MTAB.386_eset)
 data(GSE14764_eset)
-esets <- list(GSE17260=GSE17260_eset, E.MTAB.386=E.MTAB.386_eset, GSE14764=GSE14764_eset)
-esets.list <- lapply(esets, function(eset){
-  return(eset[1:500, 1:20])
-})
+esets.list <- list(E.MTAB.386=E.MTAB.386_eset[1:100, 1:20], GSE14764=GSE14764_eset[1:100, 1:20])
+rm(E.MTAB.386_eset, GSE14764_eset)
 
 ## simulate on multiple ExpressionSets
 set.seed(8) 
@@ -42,13 +40,9 @@ set.seed(8)
 y.list <- lapply(esets.list, function(eset){
   time <- eset$days_to_death
   cens.chr <- eset$vital_status
-  cens <- c()
-  for(i in seq_along(cens.chr)){
-    if(cens.chr[i] == "living") cens[i] <- 1
-    else cens[i] <- 0
-  }
-  y <- Surv(time, cens)
-  return(y)
+  cens <- rep(0, length(cens.chr))
+  cens[cens.chr=="living"] <- 1
+  return(Surv(time, cens))
 })
 
 # To perform both parametric and non-parametric bootstrap, you can call simBootstrap()
@@ -57,7 +51,7 @@ res <- getTrueModel(esets.list, y.list, 100)
 simmodels <- simData(obj=esets.list, y.vars=y.list, n.samples=10)
 
 # Then, use this function
-simmodels <- simTime(simmodels=simmodels, result=res) 
+simmodels <- simTime(simmodels=simmodels, original.yvars=y.list, result=res) 
 
 # it also supports performing only the parametrc bootstrap step on a list of expressionsets
 # but you need to construct the parameter by scratch
@@ -69,5 +63,5 @@ for(i in setsID){
 }
 simmodels <- list(obj=esets.list, y.vars=y.list, indices=indices, setsID=setsID)
 
-new.simmodels <- simTime(simmodels=simmodels, result=res)  
+new.simmodels <- simTime(simmodels=simmodels, original.yvars=y.list, result=res)  
 }

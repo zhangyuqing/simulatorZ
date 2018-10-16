@@ -6,35 +6,54 @@ getTrueModel <- structure(function
 ### grid=grid corresponding to hazard estimations censH and survH
 ### survH=cumulative hazard for survival times distribution
 ### censH=cumulative hazard for censoring times distribution
-(obj,
- ### a list of ExpressionSets, matrix or RangedSummarizedExperiment
+(esets,
+ ### a list of ExpressionSets, matrix or SummarizedExperiment
  y.vars,
- ### a list of response variables, Surv, matrix or data.frame object
- parstep 
- ### number of steps in CoxBoost
+ ### a list of response variables
+ parstep, 
+ ### CoxBoost parameter
+ #par_penalty
+ ### CoxBoost parameter
+ balance.variables=NULL
+ ### variable names to be balanced.
 ){
   Beta <- grid <- survH <- censH <- result <- lp <- list()
-  for(i in seq_along(obj)){
+  for(i in seq_along(esets)){
     print(i)
     ### PART 1: get beta
     time <- y.vars[[i]][, 1]
     time <- as.numeric(as.character(time))
     status <- y.vars[[i]][, 2]
     status <- as.numeric(as.character(status))
-
-    X <- t(getMatrix(obj[[i]])) 
- 
-    cbfit <- CoxBoost(time=time, status=status, x=X, 
+    
+    X <- t(getMatrix(esets[[i]])) 
+    
+    unpen.ind <- NULL  
+    if(!is.null(balance.variables)){
+      X1 <- pData(esets[[i]])[,balance.variables]
+      X2 <- changevar(X1, balance.variables)
+      X <- cbind(X2, X)
+      unpen.ind <- 1:ncol(X2)
+      
+      if(ncol(X2)==1){
+        varseq <- var(X2[which(status==1),])
+        if(varseq==0){unpen.ind <- NULL}
+      }else{
+        varseq <- apply(X2[which(status==1),],2,var)
+        unpen.ind <- unpen.ind[which(varseq!=0)]
+      }
+    }
+    
+    cbfit <- CoxBoost(time=time, status=status, x=X, unpen.index=unpen.ind,
                       stepno=parstep, standardize=FALSE)
     
     Beta[[i]] <- coef(cbfit)    
+    
     ### PART 2: get grid, suvH, censH
     ### Survival time ==> dmfs.cens=1, Censoring time ==> dmfs.cens=0
     ### get survH, censH, grid    
-
-    X <- getMatrix(obj[[i]])
     
-    lp[[i]] <- as.numeric(Beta[[i]] %*% X)  ## Calculate linear predictor
+    lp[[i]] <- as.numeric(Beta[[i]] %*% t(X))  ## Calculate linear predictor
     grid[[i]] <- seq(0, max(time), by = 1)
     
     survH[[i]] <- basehaz.gbm(t=time, delta=status, f.x=lp[[i]], 
@@ -55,13 +74,11 @@ getTrueModel <- structure(function
   ### lp: true linear predictors 
 },ex=function(){
   library(curatedOvarianData)
-  data(GSE17260_eset)
-  data(E.MTAB.386_eset)
   data(GSE14764_eset)
-  esets <- list(GSE17260=GSE17260_eset, E.MTAB.386=E.MTAB.386_eset, GSE14764=GSE14764_eset)
-  esets.list <- lapply(esets, function(eset){
-    return(eset[1:500, 1:20])
-  })
+  data(E.MTAB.386_eset)
+  esets.list <- list(GSE14764=GSE14764_eset[1:500, 1:20], 
+                     E.MTAB.386=E.MTAB.386_eset[1:500, 1:20])
+  rm(E.MTAB.386_eset, GSE14764_eset)
   
   ## simulate on multiple ExpressionSets
   set.seed(8) 
@@ -69,13 +86,9 @@ getTrueModel <- structure(function
   y.list <- lapply(esets.list, function(eset){
     time <- eset$days_to_death
     cens.chr <- eset$vital_status
-    cens <- c()
-    for(i in seq_along(cens.chr)){
-      if(cens.chr[i] == "living") cens[i] <- 1
-      else cens[i] <- 0
-    }
-    y <- Surv(time, cens)
-    return(y)
+    cens <- rep(0, length(cens.chr))
+    cens[cens.chr=="living"] <- 1
+    return(Surv(time, cens))
   })
      
   res1 <- getTrueModel(esets.list, y.list, 100)
@@ -84,5 +97,4 @@ getTrueModel <- structure(function
   names(res2)
   res2$lp
   ## note that y.list[1] cannot be replaced by y.list[[1]]
-   
 })

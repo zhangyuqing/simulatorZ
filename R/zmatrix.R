@@ -12,8 +12,10 @@ zmatrix <- structure(function
  ### training function
  cvFun=funCV, 
  ### function to perform cross study within one set
- cvSubsetFun=cvSubsets
+ cvSubsetFun=cvSubsets,
  ### function to divide the expression sets into subsets for cross validation 
+ covar=NULL
+ ### other covariates to be added as predictors
 ){
   Zmatrix <- matrix(, nrow=length(obj), ncol=length(obj))
   for(i in seq_along(obj)){
@@ -21,25 +23,40 @@ zmatrix <- structure(function
       if(i == j) {
         print(paste("CV: ", i, sep=""))
         Zmatrix[i, j] <- cvFun(obj=obj[[i]], fold=fold, y.var=y.vars[[i]],
-							   trainFun=trainingFun, funCvSubset=cvSubsetFun)
+                               trainFun=trainingFun, funCvSubset=cvSubsetFun,
+                               covar=covar)
         print(Zmatrix[i, j])
       }
       else if (i != j){
         print(paste("train:", i, "test:", j, sep=" "))
-        testX <- t(getMatrix(obj[[j]]))
         trainX <- t(getMatrix(obj[[i]]))
+        testX <- t(getMatrix(obj[[j]]))
+        
+        if(!is.null(covar)){
+          X1 <- pData(obj[[i]])[, covar]
+          X2 <- changevar(X1, covar)
+          trainX <- cbind(X2, trainX)
+          
+          X3 <- pData(obj[[j]])[, covar]
+          X4 <- changevar(X3, covar)
+          testX <- cbind(X4, testX)
+        }
+        
         trainY <- y.vars[[i]]
         trainY[, 1] <- as.numeric(as.character(trainY[, 1]))
         trainY[, 2] <- as.numeric(as.character(trainY[, 2]))
         trainY <- Surv(trainY[, 1], trainY[, 2])
-	    	testY <- y.vars[[j]]
+        testY <- y.vars[[j]]
         testY[, 1] <- as.numeric(as.character(testY[, 1]))
         testY[, 2] <- as.numeric(as.character(testY[, 2]))
-	    	testY <- Surv(testY[, 1], testY[, 2])
+        testY <- Surv(testY[, 1], testY[, 2])
+        
+        # handle duplicate sample names if there is bootstrap resampling
+        if(all(!duplicated(rownames(trainX)))){rownames(trainX) <- NULL}
         
         beta <- trainingFun(trainX, trainY)
-		    lp <- testX %*% beta
-        Zmatrix[i, j] <- rcorr.cens(-lp, testY)[1]
+        lp <- testX %*% beta
+        Zmatrix[i, j] <- rcorr.cens(-lp, testY)["C Index"]
         print(Zmatrix[i, j])
       }
     }
@@ -49,13 +66,10 @@ zmatrix <- structure(function
 },ex=function(){
   library(curatedOvarianData)
   library(GenomicRanges)
-  data(GSE17260_eset)
   data(E.MTAB.386_eset)
   data(GSE14764_eset)
-  esets <- list(GSE17260=GSE17260_eset, E.MTAB.386=E.MTAB.386_eset, GSE14764=GSE14764_eset)
-  esets.list <- lapply(esets, function(eset){
-    return(eset[1:500, 1:20])
-  })
+  esets.list <- list(E.MTAB.386=E.MTAB.386_eset[1:100, 1:30], GSE14764=GSE14764_eset[1:100, 1:30])
+  rm(E.MTAB.386_eset, GSE14764_eset)
   
   ## simulate on multiple ExpressionSets
   set.seed(8) 
@@ -63,26 +77,21 @@ zmatrix <- structure(function
   y.list <- lapply(esets.list, function(eset){
     time <- eset$days_to_death
     cens.chr <- eset$vital_status
-    cens <- c()
-    for(i in seq_along(cens.chr)){
-      if(cens.chr[i] == "living") cens[i] <- 1
-      else cens[i] <- 0
-    }
-    y <- Surv(time, cens)
-    return(y)
+    cens <- rep(0, length(cens.chr))
+    cens[cens.chr=="living"] <- 1
+    return(Surv(time, cens))
   })
   
   # generate on original ExpressionSets
   z <- zmatrix(esets.list, y.list, 3)
   
   # generate on simulated ExpressionSets
-  simmodels <- simBootstrap(esets.list, y.list, 10, 100)
+  simmodels <- simBootstrap(esets.list, y.list, 100, 100)
   z <- zmatrix(simmodels$obj.list, simmodels$y.vars.list, 3)
   
   # support matrix
   X.list <- lapply(esets.list, function(eset){
-    newx <- exprs(eset) ### columns represent samples !!
-    return(newx)
+    return(exprs(eset)) ### columns represent samples !!
   }) 
   z <- zmatrix(X.list, y.list, 3)
   

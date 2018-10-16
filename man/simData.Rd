@@ -37,14 +37,10 @@ shows the sampling probability in each set after balancing}
 library(curatedOvarianData)
 library(GenomicRanges)
 
-data(GSE17260_eset)
 data(E.MTAB.386_eset)
 data(GSE14764_eset)
-
-esets <- list(GSE17260=GSE17260_eset, E.MTAB.386=E.MTAB.386_eset, GSE14764=GSE14764_eset)
-esets.list <- lapply(esets, function(eset){
-  return(eset[1:1000, 1:10])
-})
+esets.list <- list(E.MTAB.386=E.MTAB.386_eset[1:100, 1:10], GSE14764=GSE14764_eset[1:100, 1:10])
+rm(E.MTAB.386_eset, GSE14764_eset)
 
 ## simulate on multiple ExpressionSets
 set.seed(8)

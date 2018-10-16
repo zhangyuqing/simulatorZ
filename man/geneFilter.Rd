@@ -28,23 +28,26 @@ library(GenomicRanges)
 data(GSE17260_eset)
 data(E.MTAB.386_eset)
 data(GSE14764_eset)
-esets <- list(GSE17260=GSE17260_eset, E.MTAB.386=E.MTAB.386_eset, GSE14764=GSE14764_eset)
-esets.list <- lapply(esets, function(eset){
-  return(eset[1:1500, 1:10])
-})
+## to save time, we take a small subset from each dataset
+esets.list <- list(GSE17260=GSE17260_eset[1:50, 1:10], 
+                   E.MTAB.386=E.MTAB.386_eset[1:50, 1:10], 
+                   GSE14764=GSE14764_eset[1:50, 1:10])
+rm(E.MTAB.386_eset, GSE14764_eset, GSE17260_eset)
 
-result.set <- geneFilter(esets.list, 0)
-result.set
-### as we cannot calculate correlation with one set, this function just 
-### delivers the same set if esets has length 1
+result.set <- geneFilter(esets.list, 0.1)
+dim(result.set[[1]])
+
+## as we cannot calculate correlation with one set, this function just 
+## delivers the same set if esets has length 1
 result.oneset <- geneFilter(esets.list[1])
-result.oneset
+dim(result.oneset[[1]])
+
 
 ## Support matrices
 X.list <- lapply(esets.list, function(eset){
   return(exprs(eset)) ## Columns represent samples!
 })
-result.set <- geneFilter(X.list, 0)
+result.set <- geneFilter(X.list, 0.1)
 dim(result.set[[1]])
 
 ## Support RangedSummarizedExperiment

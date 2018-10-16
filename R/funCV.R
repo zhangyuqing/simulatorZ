@@ -9,11 +9,22 @@ funCV <- structure(function
  ### response variable, matrix, data.frame(with 2 columns) or Surv object
  trainFun=masomenos,
  ### training function, which takes gene expression matrix X and response variable y as input, the coefficients as output 
- funCvSubset=cvSubsets
+ funCvSubset=cvSubsets,
  ### function to divide one Expression Set into subsets for cross validation
+ covar=NULL
+ ### other covariates to be added in as predictors
 ){
   setindex <- funCvSubset(obj, fold)
-  obj <- getMatrix(obj)
+
+  if(!is.null(covar)){
+    X1 <- pData(obj)[,covar]
+    X2 <- changevar(X1, covar)
+    obj <- t(getMatrix(obj))
+    obj <- t(cbind(X2, obj))
+  }else{
+    obj <- getMatrix(obj)
+  }
+  
   ## cross validation
   z <- numeric(fold)
   for(i in 1:fold){
@@ -29,11 +40,14 @@ funCV <- structure(function
     trainY[, 2] <- as.numeric(as.character(trainY[, 2]))
     trainY <- Surv(trainY[, 1], trainY[, 2])
     
+    # handle duplicate sample names if there is bootstrap resampling
+    if(all(!duplicated(rownames(trainX)))){rownames(trainX) <- NULL}
+    
     beta <- trainFun(trainX, trainY)
     lp <- testX %*% beta    
-	  z[i] <- rcorr.cens(-lp, testY)[1]
+    z[i] <- rcorr.cens(-lp, testY)["C Index"]
   }
-  z <- sum(z) / fold
+  z <- sum(z,na.rm=TRUE) / sum(!is.nan(z))
   return(z)
   ### returns the c statistics of cross validation(CV)
 },ex=function(){
@@ -42,13 +56,12 @@ funCV <- structure(function
   set.seed(8)
   data( E.MTAB.386_eset )
   eset <- E.MTAB.386_eset[1:100, 1:30]
+  rm(E.MTAB.386_eset)
+  
   time <- eset$days_to_death
   cens.chr <- eset$vital_status
-  cens <- c()
-  for(i in seq_along(cens.chr)){
-    if(cens.chr=="living") cens[i] <- 1
-    else cens[i] <- 0
-  }
+  cens <- rep(0, length(cens.chr))
+  cens[cens.chr=="living"] <- 1
   y <- Surv(time, cens)  
   y1 <- cbind(time, cens)
   
@@ -61,14 +74,12 @@ funCV <- structure(function
                        row.names=LETTERS[1:6])
   sset <- SummarizedExperiment(assays=SimpleList(counts=counts),
                                rowRanges=rowRanges, colData=colData)
-  time <- sample(4500:4700, 6, replace=TRUE)
-  cens <- sample(0:1, 6, replace=TRUE)
+  time <- c(1588,1929,1813,1542,1830,1775)  
+  cens <- c(1,0,1,1,1,1)
   y.vars <- Surv(time, cens)
   
   funCV(eset, 3, y)
-  funCV(eset, 3, y1, trainFun=plusMinus)
-  funCV(exprs(eset), 3, y)
-  
+  funCV(exprs(eset), 3, y1)
   funCV(sset, 3, y.vars)
   ## any training function will do as long as it takes the gene expression matrix X
   ## and response variable y(matrix, data.frame or Surv object) as parameters, and

@@ -7,6 +7,8 @@ simTime <- structure(function
  ### obj: a list of ExpressionSets, matrices or RangedSummarizedExperiments
  ### setsID: a list of set labels indicating which original set the simulated one is from
  ### indices: a list of patient labels to tell which patient in the original set is drawn
+ original.yvars,
+ ### response variable in the order of original sets(without sampling)
  result
  ### a list in the form of return of getTrueModel()
  ### which consists of five lists: 
@@ -16,53 +18,50 @@ simTime <- structure(function
  ### censH: cumulative hazard for censoring times distribution
  ### lp: true linear predictors
 ){  
-  y.vars <- list()
+  new.y.vars <- list()
   for(i in seq_along(simmodels$obj)){
     print(i)
     setID <- simmodels$setsID[i]
-    time <- simmodels$y.vars[[setID]][, 1]
+    time <- original.yvars[[setID]][, 1]
     time <- as.numeric(as.character(time))
-    status <-  simmodels$y.vars[[setID]][, 2] 
+    status <-  original.yvars[[setID]][, 2] 
     status <- as.numeric(as.character(status))
     ith_beta <- result$beta[[setID]]
     grid <- result$grid[[setID]]
     survH <- result$survH[[setID]]
     censH <- result$censH[[setID]]
-    lp <- result$lp[[setID]][simmodels$indices[[i]]]
+    lp <- result$lp[[setID]][simmodels$indices[[i]]] ## bootstrap of true linear scores
     ## get the inverse of the Nelsin-Aalen estimator function
     ## the ith resampled set is from names(esets)[i] originally(refer to simData())
     TIME <- CENS <- c()
     newTIME <- newCENS <- c()
-
+    
     num.sam <- ncol(getMatrix(simmodels$obj[[i]])) 
     for(j in seq_len(num.sam)) {
       ## generate the survival time 
       u1 <- runif(1, min = 0, max = 1)
-      z1 <- (-log(u1, base=exp(1))) * (exp(-lp[j])) 
+      z1 <- -log(u1, base=exp(1)) * exp(-lp[j])
       TIME[j] <- grid[which.min(abs(survH - z1))]
       if (TIME[j] >= max(time[which(status == 1)], na.rm=TRUE))  TIME[j] <- 1e+08      
       ## generate the censoring time
       u2 <- runif(1, min = 0, max = 1)
-      z2 <- -log(u2, base=exp(1))
+      z2 <- -log(u2, base=exp(1)) ## * exp(-lp) and lp=0
       CENS[j] <- min(grid[which.min(abs(censH - z2))], max(time[which(status == 0)]))
-      if (CENS[j] >= max(time[which(status == 0)], na.rm=TRUE))  CENS[j] <- 1e+08            
+      #if (CENS[j] >= max(time[which(status == 0)], na.rm=TRUE))  CENS[j] <- 1e+08            
       newTIME[j] <- min(TIME[j], CENS[j])
       newCENS[j] <- as.numeric(TIME[j] < CENS[j])
     }    
-    y.vars[[i]] <- Surv(newTIME, newCENS)
+    new.y.vars[[i]] <- Surv(newTIME, newCENS)
   }
-  simmodels$y.vars <- y.vars
+  simmodels$y.vars <- new.y.vars
   return(simmodels)
   ### survival time is saved in phenodata, here the function still returns the ExpressionSets
 },ex=function(){
   library(curatedOvarianData)
-  data(GSE17260_eset)
   data(E.MTAB.386_eset)
   data(GSE14764_eset)
-  esets <- list(GSE17260=GSE17260_eset, E.MTAB.386=E.MTAB.386_eset, GSE14764=GSE14764_eset)
-  esets.list <- lapply(esets, function(eset){
-    return(eset[1:500, 1:20])
-  })
+  esets.list <- list(E.MTAB.386=E.MTAB.386_eset[1:100, 1:20], GSE14764=GSE14764_eset[1:100, 1:20])
+  rm(E.MTAB.386_eset, GSE14764_eset)
   
   ## simulate on multiple ExpressionSets
   set.seed(8) 
@@ -70,13 +69,9 @@ simTime <- structure(function
   y.list <- lapply(esets.list, function(eset){
     time <- eset$days_to_death
     cens.chr <- eset$vital_status
-    cens <- c()
-    for(i in seq_along(cens.chr)){
-      if(cens.chr[i] == "living") cens[i] <- 1
-      else cens[i] <- 0
-    }
-    y <- Surv(time, cens)
-    return(y)
+    cens <- rep(0, length(cens.chr))
+    cens[cens.chr=="living"] <- 1
+    return(Surv(time, cens))
   })
   
   # To perform both parametric and non-parametric bootstrap, you can call simBootstrap()
@@ -85,7 +80,7 @@ simTime <- structure(function
   simmodels <- simData(obj=esets.list, y.vars=y.list, n.samples=10)
   
   # Then, use this function
-  simmodels <- simTime(simmodels=simmodels, result=res) 
+  simmodels <- simTime(simmodels=simmodels, original.yvars=y.list, result=res) 
   
   # it also supports performing only the parametrc bootstrap step on a list of expressionsets
   # but you need to construct the parameter by scratch
@@ -97,5 +92,5 @@ simTime <- structure(function
   }
   simmodels <- list(obj=esets.list, y.vars=y.list, indices=indices, setsID=setsID)
   
-  new.simmodels <- simTime(simmodels=simmodels, result=res)  
+  new.simmodels <- simTime(simmodels=simmodels, original.yvars=y.list, result=res)  
 })

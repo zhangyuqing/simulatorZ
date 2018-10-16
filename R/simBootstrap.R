@@ -20,10 +20,10 @@ simBootstrap <- structure(function
  funSurvTime=simTime
  ### function to perform parametric bootstrap
 ){
-  result <- funTrueModel(obj=obj, y.vars=y.vars, parstep=parstep)
-  simmodels <- funSimData(obj=obj, balance.variables=balance.variables,
-                       n.samples=n.samples, type=type, y.vars=y.vars)
-  simmodels <- funSurvTime(simmodels=simmodels, result=result) 
+  result <- funTrueModel(esets=obj, y.vars=y.vars, parstep=parstep, balance.variables=balance.variables)
+  simmodels <- funSimData(obj=obj, n.samples=n.samples, y.vars=y.vars, 
+                       type=type, balance.variables=balance.variables)
+  simmodels <- funSurvTime(simmodels=simmodels, original.yvars=y.vars, result=result) 
   res <- list(obj.list=simmodels$obj, y.vars.list=simmodels$y.vars,
               indices.list=simmodels$indices, setsID=simmodels$setsID, 
               lp.list=result$lp, beta.list=result$beta, 
@@ -44,13 +44,10 @@ simBootstrap <- structure(function
 },ex=function(){
   library(curatedOvarianData)
   library(GenomicRanges)
-  data(GSE17260_eset)
   data(E.MTAB.386_eset)
   data(GSE14764_eset)
-  esets <- list(GSE17260=GSE17260_eset, E.MTAB.386=E.MTAB.386_eset, GSE14764=GSE14764_eset)
-  esets.list <- lapply(esets, function(eset){
-    return(eset[1:500, 1:20])
-  })
+  esets.list <- list(E.MTAB.386=E.MTAB.386_eset[1:200, 1:20], GSE14764=GSE14764_eset[1:200, 1:20])
+  rm(E.MTAB.386_eset, GSE14764_eset)
   
   ## simulate on multiple ExpressionSets
   set.seed(8) 
@@ -58,13 +55,9 @@ simBootstrap <- structure(function
   y.list <- lapply(esets.list, function(eset){
     time <- eset$days_to_death
     cens.chr <- eset$vital_status
-    cens <- c()
-    for(i in seq_along(cens.chr)){
-      if(cens.chr[i] == "living") cens[i] <- 1
-      else cens[i] <- 0
-    }
-    y <- Surv(time, cens)
-    return(y)
+    cens <- rep(0, length(cens.chr))
+    cens[cens.chr=="living"] <- 1
+    return(Surv(time, cens))
   })
   
   simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100)
@@ -73,6 +66,7 @@ simBootstrap <- structure(function
   # balance covariates
   simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100,
                             balance.variables="tumorstage")
+  rm(esets.list, simmodels)
   
   ## Support RangedSummarizedExperiment
   nrows <- 200; ncols <- 10
@@ -90,5 +84,5 @@ simBootstrap <- structure(function
   cens <- c(1, 0, 0, 1, 0, 1, 0, 0, 1, 0)
   y.vars <- Surv(time, cens)
   y.vars <- list(y.vars[1:5,],y.vars[1:5,])
-  simmodels <- simBootstrap(obj=s.list, y.vars=y.vars, 100, 100) 
+  simmodels <- simBootstrap(obj=s.list, y.vars=y.vars, 20, 100) 
 })

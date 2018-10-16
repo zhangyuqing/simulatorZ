@@ -38,13 +38,10 @@ grid.list = list of timeline grid corresponding to survH and censH respectivley}
 \examples{
 library(curatedOvarianData)
 library(GenomicRanges)
-data(GSE17260_eset)
 data(E.MTAB.386_eset)
 data(GSE14764_eset)
-esets <- list(GSE17260=GSE17260_eset, E.MTAB.386=E.MTAB.386_eset, GSE14764=GSE14764_eset)
-esets.list <- lapply(esets, function(eset){
-  return(eset[1:500, 1:20])
-})
+esets.list <- list(E.MTAB.386=E.MTAB.386_eset[1:200, 1:20], GSE14764=GSE14764_eset[1:200, 1:20])
+rm(E.MTAB.386_eset, GSE14764_eset)
 
 ## simulate on multiple ExpressionSets
 set.seed(8) 
@@ -52,13 +49,9 @@ set.seed(8)
 y.list <- lapply(esets.list, function(eset){
   time <- eset$days_to_death
   cens.chr <- eset$vital_status
-  cens <- c()
-  for(i in seq_along(cens.chr)){
-    if(cens.chr[i] == "living") cens[i] <- 1
-    else cens[i] <- 0
-  }
-  y <- Surv(time, cens)
-  return(y)
+  cens <- rep(0, length(cens.chr))
+  cens[cens.chr=="living"] <- 1
+  return(Surv(time, cens))
 })
 
 simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100)
@@ -67,6 +60,7 @@ simmodels$obj.list[[1]]
 # balance covariates
 simmodels <- simBootstrap(obj=esets.list, y.vars=y.list, 10, 100,
                           balance.variables="tumorstage")
+rm(esets.list, simmodels)
 
 ## Support RangedSummarizedExperiment
 nrows <- 200; ncols <- 10
@@ -84,5 +78,5 @@ time <- c(540, 527, 668, 587, 620, 540, 527, 668, 587, 620)
 cens <- c(1, 0, 0, 1, 0, 1, 0, 0, 1, 0)
 y.vars <- Surv(time, cens)
 y.vars <- list(y.vars[1:5,],y.vars[1:5,])
-simmodels <- simBootstrap(obj=s.list, y.vars=y.vars, 100, 100) 
+simmodels <- simBootstrap(obj=s.list, y.vars=y.vars, 20, 100) 
 }

@@ -3,7 +3,7 @@
 \title{zmatrix}
 \description{generate a matrix of c statistics}
 \usage{zmatrix(obj, y.vars, fold, trainingFun = masomenos, cvFun = funCV, 
-    cvSubsetFun = cvSubsets)}
+    cvSubsetFun = cvSubsets, covar = NULL)}
 \arguments{
   \item{obj}{a list of ExpressionSet, matrix or RangedSummarizedExperiment objects.
 If its elements are matrices, columns represent samples }
@@ -13,6 +13,7 @@ matrix, data.frame(with 2 columns) or Surv object}
   \item{trainingFun}{training function}
   \item{cvFun}{function to perform cross study within one set}
   \item{cvSubsetFun}{function to divide the expression sets into subsets for cross validation }
+  \item{covar}{other covariates to be added as predictors}
 }
 
 \value{outputs one matrix of validation statistics}
@@ -25,13 +26,10 @@ matrix, data.frame(with 2 columns) or Surv object}
 \examples{
 library(curatedOvarianData)
 library(GenomicRanges)
-data(GSE17260_eset)
 data(E.MTAB.386_eset)
 data(GSE14764_eset)
-esets <- list(GSE17260=GSE17260_eset, E.MTAB.386=E.MTAB.386_eset, GSE14764=GSE14764_eset)
-esets.list <- lapply(esets, function(eset){
-  return(eset[1:500, 1:20])
-})
+esets.list <- list(E.MTAB.386=E.MTAB.386_eset[1:100, 1:30], GSE14764=GSE14764_eset[1:100, 1:30])
+rm(E.MTAB.386_eset, GSE14764_eset)
 
 ## simulate on multiple ExpressionSets
 set.seed(8) 
@@ -39,26 +37,21 @@ set.seed(8)
 y.list <- lapply(esets.list, function(eset){
   time <- eset$days_to_death
   cens.chr <- eset$vital_status
-  cens <- c()
-  for(i in seq_along(cens.chr)){
-    if(cens.chr[i] == "living") cens[i] <- 1
-    else cens[i] <- 0
-  }
-  y <- Surv(time, cens)
-  return(y)
+  cens <- rep(0, length(cens.chr))
+  cens[cens.chr=="living"] <- 1
+  return(Surv(time, cens))
 })
 
 # generate on original ExpressionSets
 z <- zmatrix(esets.list, y.list, 3)
 
 # generate on simulated ExpressionSets
-simmodels <- simBootstrap(esets.list, y.list, 10, 100)
+simmodels <- simBootstrap(esets.list, y.list, 100, 100)
 z <- zmatrix(simmodels$obj.list, simmodels$y.vars.list, 3)
 
 # support matrix
 X.list <- lapply(esets.list, function(eset){
-  newx <- exprs(eset) ### columns represent samples !!
-  return(newx)
+  return(exprs(eset)) ### columns represent samples !!
 }) 
 z <- zmatrix(X.list, y.list, 3)
 

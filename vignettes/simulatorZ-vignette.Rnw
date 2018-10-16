@@ -239,7 +239,7 @@ names(true.mod)
 \Robject{beta} represents coefficients obtained from fitting CoxBoost to the original data sets. \Robject{lp} is linear predictor calculated by multiplying coefficients with the gene expression matrix. \Robject{survH} and \Robject{censH} are cumulative survival and censoring hazard while \Robject{grid} is the corresponding time span. 
 <<echo=TRUE,results=hide>>=
 simmodel <- simData(esets, 500, y.list)
-new.esets <- simTime(simmodel, true.mod)
+new.esets <- simTime(simmodel, y.list, true.mod)
 @
 \Rfunction{simTime} output the same form of list as input, only different in that the y.vars is updated.
 Both parameters of \Rfunction{simTime} can be constructed from scratch. Please refer to the examples sim the help manuel.
@@ -249,7 +249,7 @@ In order to achieve the three-step simulation, we can complete it step-by-step i
 <<echo=TRUE,results=hide>>=
 true.mod <- getTrueModel(esets, y.list, 100)
 sim.sets <- simData(esets, 500, y.list)
-sim.sets <- simTime(sim.sets, true.mod)
+sim.sets <- simTime(sim.sets, y.list, true.mod)
 @
 
 Or, we can use the driver function \Rfunction{simBootstrap} directly:
@@ -301,7 +301,7 @@ for(listid in seq_along(esets)){
   lp[[listid]] <- truemod$lp[[1]][which(lp.index==listid)]
 }
 res <- list(beta=beta, grid=grid, survH=survH, censH=censH, lp=lp)
-simmodels <- simTime(simmodels, res)
+simmodels <- simTime(simmodels, y.vars, res)
 @
 
 Users can also build up their own true model based on the example in
@@ -435,7 +435,7 @@ Combining the two main features of \Rpackage{simulatorZ}, we can first simulate 
 <<echo=TRUE,results=hide>>=
 Z.list <- list()
 CV <- CSV <- c()
-for(b in 1:20){
+for(b in 1:10){
   print(paste("iteration: ", b, sep=""))
   sim2.esets <- simBootstrap(obj=esets, n.samples=150, y.vars=y.list,
                              parstep=100, type="two-steps")
@@ -450,13 +450,13 @@ for(b in 1:20){
   CSV[b] <- (sum(Z.list[[b]]) - sum.cv) / (length(esets)*(length(esets)-1))
 }
 @
-So far we have done 20 simulations, during each of them we get a matrix of C-Index, the average of the CV and CSV validation statistics. This provides an insight of the difference between cross-study validation and the traditional cross validation.
+So far we have done 10 simulations, during each of them we get a matrix of C-Index, the average of the CV and CSV validation statistics. This provides an insight of the difference between cross-study validation and the traditional cross validation.
 <<box,echo=TRUE,fig=TRUE,include=FALSE>>=
 average.Z <- Z.list[[1]]
 for(i in 2:length(Z.list)){
   average.Z <- average.Z + Z.list[[i]]
 }
-average.Z <- average.Z / 20
+average.Z <- average.Z / 10
 print(average.Z)
 
 resultlist <- list(CSV=CSV, CV=CV)

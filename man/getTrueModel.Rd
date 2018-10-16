@@ -8,11 +8,12 @@ the survival and censoring time. grid, survH, censH, which are useful for this p
 grid=grid corresponding to hazard estimations censH and survH
 survH=cumulative hazard for survival times distribution
 censH=cumulative hazard for censoring times distribution}
-\usage{getTrueModel(obj, y.vars, parstep)}
+\usage{getTrueModel(esets, y.vars, parstep, balance.variables = NULL)}
 \arguments{
-  \item{obj}{a list of ExpressionSets, matrix or RangedSummarizedExperiment}
-  \item{y.vars}{a list of response variables, Surv, matrix or data.frame object}
-  \item{parstep}{number of steps in CoxBoost}
+  \item{esets}{a list of ExpressionSets, matrix or SummarizedExperiment}
+  \item{y.vars}{a list of response variables}
+  \item{parstep}{CoxBoost parameter}
+  \item{balance.variables}{variable names to be balanced.}
 }
 
 \value{returns a list of values:
@@ -29,13 +30,11 @@ lp: true linear predictors }
 
 \examples{
 library(curatedOvarianData)
-data(GSE17260_eset)
-data(E.MTAB.386_eset)
 data(GSE14764_eset)
-esets <- list(GSE17260=GSE17260_eset, E.MTAB.386=E.MTAB.386_eset, GSE14764=GSE14764_eset)
-esets.list <- lapply(esets, function(eset){
-  return(eset[1:500, 1:20])
-})
+data(E.MTAB.386_eset)
+esets.list <- list(GSE14764=GSE14764_eset[1:500, 1:20], 
+                   E.MTAB.386=E.MTAB.386_eset[1:500, 1:20])
+rm(E.MTAB.386_eset, GSE14764_eset)
 
 ## simulate on multiple ExpressionSets
 set.seed(8) 
@@ -43,13 +42,9 @@ set.seed(8)
 y.list <- lapply(esets.list, function(eset){
   time <- eset$days_to_death
   cens.chr <- eset$vital_status
-  cens <- c()
-  for(i in seq_along(cens.chr)){
-    if(cens.chr[i] == "living") cens[i] <- 1
-    else cens[i] <- 0
-  }
-  y <- Surv(time, cens)
-  return(y)
+  cens <- rep(0, length(cens.chr))
+  cens[cens.chr=="living"] <- 1
+  return(Surv(time, cens))
 })
    
 res1 <- getTrueModel(esets.list, y.list, 100)
@@ -58,5 +53,4 @@ res2 <- getTrueModel(esets.list[1], y.list[1], 100)
 names(res2)
 res2$lp
 ## note that y.list[1] cannot be replaced by y.list[[1]]
- 
 }

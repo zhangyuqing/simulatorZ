@@ -2,7 +2,8 @@
 \alias{funCV}
 \title{funCV}
 \description{Cross validation function}
-\usage{funCV(obj, fold, y.var, trainFun = masomenos, funCvSubset = cvSubsets)}
+\usage{funCV(obj, fold, y.var, trainFun = masomenos, funCvSubset = cvSubsets, 
+    covar = NULL)}
 \arguments{
   \item{obj}{a ExpressionSet, matrix or RangedSummarizedExperiment object. If it is a
 matrix, columns represent samples }
@@ -10,6 +11,7 @@ matrix, columns represent samples }
   \item{y.var}{response variable, matrix, data.frame(with 2 columns) or Surv object}
   \item{trainFun}{training function, which takes gene expression matrix X and response variable y as input, the coefficients as output }
   \item{funCvSubset}{function to divide one Expression Set into subsets for cross validation}
+  \item{covar}{other covariates to be added in as predictors}
 }
 
 \value{returns the c statistics of cross validation(CV)}
@@ -25,13 +27,12 @@ library(GenomicRanges)
 set.seed(8)
 data( E.MTAB.386_eset )
 eset <- E.MTAB.386_eset[1:100, 1:30]
+rm(E.MTAB.386_eset)
+
 time <- eset$days_to_death
 cens.chr <- eset$vital_status
-cens <- c()
-for(i in seq_along(cens.chr)){
-  if(cens.chr=="living") cens[i] <- 1
-  else cens[i] <- 0
-}
+cens <- rep(0, length(cens.chr))
+cens[cens.chr=="living"] <- 1
 y <- Surv(time, cens)  
 y1 <- cbind(time, cens)
 
@@ -44,14 +45,12 @@ colData <- DataFrame(Treatment=rep(c("ChIP", "Input"), 3),
                      row.names=LETTERS[1:6])
 sset <- SummarizedExperiment(assays=SimpleList(counts=counts),
                              rowRanges=rowRanges, colData=colData)
-time <- sample(4500:4700, 6, replace=TRUE)
-cens <- sample(0:1, 6, replace=TRUE)
+time <- c(1588,1929,1813,1542,1830,1775)  
+cens <- c(1,0,1,1,1,1)
 y.vars <- Surv(time, cens)
 
 funCV(eset, 3, y)
-funCV(eset, 3, y1, trainFun=plusMinus)
-funCV(exprs(eset), 3, y)
-
+funCV(exprs(eset), 3, y1)
 funCV(sset, 3, y.vars)
 ## any training function will do as long as it takes the gene expression matrix X
 ## and response variable y(matrix, data.frame or Surv object) as parameters, and

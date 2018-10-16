@@ -22,6 +22,7 @@ masomenos <- structure(function
   library(curatedOvarianData)
   data( E.MTAB.386_eset )
   eset <- E.MTAB.386_eset[1:100, 1:30]
+  rm(E.MTAB.386_eset)
   
   X <- t(exprs(eset))
   
@@ -29,6 +30,6 @@ masomenos <- structure(function
   cens <- sample(0:1, 30, replace=TRUE)
   y <- Surv(time, cens)
   
-  beta <- masomenos(X, y)
+  beta <- masomenos(X=X, y=y)
   beta
 })

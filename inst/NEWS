@@ -1,1 +1,6 @@
-1.3.3 Fix masomenus
+1.3.3 
+- Fix masomenus
+
+1.15.1 
+- Updated getTrueModel, zmatrix, simTime to include additional covariates as predictors
+- Simplified examples 
