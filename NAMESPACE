@@ -2,7 +2,8 @@ useDynLib(simulatorZ, .registration=TRUE)
 
 import(Biobase, survival, GenomicRanges, SummarizedExperiment)
 importFrom(stats, coefficients, coef, fitted, fitted.values, residuals, time,
-           weights, predict, cor, pnorm, quantile, runif, sd, var, model.matrix)
+           weights, predict, cor, pnorm, quantile, runif, var, model.matrix)
+importFrom(BiocGenerics, sd)
 importFrom(methods, is, new)
 importFrom(graphics, plot)
 importFrom(graphics, boxplot)
